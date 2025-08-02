@@ -1,27 +1,24 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-// import { useSearchParams } from 'next/navigation';
 import ProductCard from '../components/ProductCard';
 import { products, categories } from '../context/mock-data';
 
 function ShopContent() {
-  // const searchParams = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('name');
   const [priceRange, setPriceRange] = useState('all');
   const [filteredProducts, setFilteredProducts] = useState(products);
 
+  // 🔧 Optional: useEffect to reset filters on load
   useEffect(() => {
-    const categoryParam = searchParams.get('category');
-    if (categoryParam) {
-      setSelectedCategory(categoryParam);
-    }
-  }, [searchParams]);
+    setFilteredProducts(products);
+  }, []);
 
   useEffect(() => {
     let filtered = [...products];
 
+    // Filter by category
     if (selectedCategory !== 'all') {
       const category = categories.find(cat => cat.id === selectedCategory);
       if (category) {
@@ -29,6 +26,7 @@ function ShopContent() {
       }
     }
 
+    // Filter by price
     if (priceRange !== 'all') {
       switch (priceRange) {
         case 'under-150':
@@ -40,9 +38,12 @@ function ShopContent() {
         case 'over-300':
           filtered = filtered.filter(product => product.price > 300);
           break;
+        default:
+          break;
       }
     }
 
+    // Sort
     switch (sortBy) {
       case 'price-low':
         filtered.sort((a, b) => a.price - b.price);
@@ -65,7 +66,6 @@ function ShopContent() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
 
-
       {/* Hero Section */}
       <section className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
@@ -83,6 +83,7 @@ function ShopContent() {
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Category */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
                 <select
@@ -99,6 +100,7 @@ function ShopContent() {
                 </select>
               </div>
 
+              {/* Price */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
                 <select
@@ -113,6 +115,7 @@ function ShopContent() {
                 </select>
               </div>
 
+              {/* Sort */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
                 <select
@@ -156,29 +159,24 @@ function ShopContent() {
         </div>
       </section>
 
-
     </div>
   );
 }
 
 export default function Shop() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
-
-          <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto text-center">
-              <div className="animate-pulse">
-                <div className="h-16 bg-gray-200 rounded mb-4"></div>
-                <div className="h-8 bg-gray-200 rounded max-w-2xl mx-auto"></div>
-              </div>
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
+        <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto text-center">
+            <div className="animate-pulse">
+              <div className="h-16 bg-gray-200 rounded mb-4"></div>
+              <div className="h-8 bg-gray-200 rounded max-w-2xl mx-auto"></div>
             </div>
           </div>
-
         </div>
-      }
-    >
+      </div>
+    }>
       <ShopContent />
     </Suspense>
   );
