@@ -115,7 +115,7 @@ const Contact = () => {
                     <div>
                       <h3 className="text-xl font-semibold text-gray-800 mb-2">Phone</h3>
                       <p className="text-gray-600">
-                        <a href="tel:+15551234567" className="hover:text-amber-700 transition-colors">
+                        <a href="tel:15551234567" className="hover:text-amber-700 transition-colors">
                           (555) 123-4567
                         </a><br />
                         <span className="text-sm text-gray-500">Available during business hours</span>
@@ -313,7 +313,7 @@ const Contact = () => {
                   <p className="text-amber-100">123 Coffee Street, Bean City, BC 12345</p>
                 </div>
                 <a
-                  href="https://maps.google.com/?q=123+Coffee+Street,+Bean+City,+BC+12345"
+                  href="https://maps.google.com/?q=123CoffeeStreet,BeanCity,BC12345"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-white text-amber-700 px-6 py-3 rounded-full font-medium hover:bg-amber-50 transition-colors whitespace-nowrap cursor-pointer"
@@ -335,7 +335,7 @@ const Contact = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="tel:+15551234567"
+              href="tel:15551234567"
               className="bg-white text-amber-700 px-8 py-4 rounded-full font-semibold hover:bg-amber-50 transition-colors whitespace-nowrap cursor-pointer"
             >
               <i className="ri-phone-fill mr-2"></i>
