@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const BlogCard = ({ post }) => {
   const cardRef = useRef(null);
@@ -8,7 +9,8 @@ const BlogCard = ({ post }) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       import('gsap').then(({ gsap }) => {
-        gsap.fromTo(cardRef.current,
+        gsap.fromTo(
+          cardRef.current,
           { opacity: 0, y: 30 },
           {
             opacity: 1,
@@ -17,8 +19,8 @@ const BlogCard = ({ post }) => {
             scrollTrigger: {
               trigger: cardRef.current,
               start: 'top 85%',
-              toggleActions: 'play none none reverse'
-            }
+              toggleActions: 'play none none reverse',
+            },
           }
         );
       });
@@ -30,13 +32,13 @@ const BlogCard = ({ post }) => {
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
   return (
     <div ref={cardRef} className="group">
-      <a href={`/blog/${post.id}`}>
+      <Link to={`/blog/${post._id}`}>
         <article className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer">
           {/* Image */}
           <div className="relative overflow-hidden">
@@ -91,7 +93,7 @@ const BlogCard = ({ post }) => {
             </div>
           </div>
         </article>
-      </a>
+      </Link>
     </div>
   );
 };

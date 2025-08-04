@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 
 const OrderManagement = ({ orders }) => {
   const { updateOrderStatus } = useAuth();

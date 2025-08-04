@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import ProductManagement from "./ProductManagement";
 import OrderManagement from "./OrderManagement";
 import { products } from "../../context/mock-data";

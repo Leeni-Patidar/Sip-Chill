@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import CartModal from './CartModal';
 import WishlistModal from "../pages/WishlistModal";
 

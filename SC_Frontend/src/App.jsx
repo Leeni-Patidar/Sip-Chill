@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Layout from './components/Layout';
 import Home from './pages/Home';
@@ -17,6 +17,7 @@ import OrderConfirmation from './pages/OrderConfirmation';
 import OrderDetails from './pages/OrderDetails';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import NotFound from './components/NotFound';
+import BlogPost from './pages/Blog/BlogPost';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:id" element={<BlogPost />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

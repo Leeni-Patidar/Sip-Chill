@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
-import { useParams, Link } from 'react-router';
-import { blogPosts } from '../context/mock-data';
+import { useParams, Link } from 'react-router-dom';
+import { blogPosts } from '../../context/mock-data';
 
 const BlogPost = () => {
   const { id } = useParams();
