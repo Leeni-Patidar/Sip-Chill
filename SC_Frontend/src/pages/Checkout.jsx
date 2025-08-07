@@ -4,7 +4,7 @@ import { useCart } from "../context/CartContext";
 const Checkout = () => {
   const { cartItems } = useContext(useCart);
 
-  const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const total = cartItems.reduce((acc, item) => acc  item.price * item.quantity, 0);
 
   const handlePlaceOrder = () => {
     alert("Order placed!");

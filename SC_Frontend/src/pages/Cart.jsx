@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 const Cart = () => {
   const { cartItems, updateQuantity, removeFromCart } = useContext(useCart);
 
-  const totalAmount = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const totalAmount = cartItems.reduce((acc, item) => acc  item.price * item.quantity, 0);
 
   return (
     <div className="p-6">
@@ -22,7 +22,7 @@ const Cart = () => {
                 <div className="flex items-center space-x-2 mt-2">
                   <button onClick={() => updateQuantity(item._id, item.quantity - 1)} disabled={item.quantity <= 1}>-</button>
                   <span>{item.quantity}</span>
-                  <button onClick={() => updateQuantity(item._id, item.quantity + 1)}>+</button>
+                  <button onClick={() => updateQuantity(item._id, item.quantity  1)}></button>
                 </div>
               </div>
               <button className="text-red-600" onClick={() => removeFromCart(item._id)}>Remove</button>
