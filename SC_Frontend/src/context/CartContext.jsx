@@ -17,7 +17,7 @@ const cartReducer = (state, action) => {
       if (existingItem) {
         newItems = state.items.map(item =>
           item.id === action.payload.id
-            ? { ...item, quantity: item.quantity  1 }
+            ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       } else {
@@ -25,7 +25,7 @@ const cartReducer = (state, action) => {
       }
 
       const total = newItems.reduce((sum, item) => sum  (item.price * item.quantity), 0);
-      const itemCount = newItems.reduce((sum, item) => sum  item.quantity, 0);
+      const itemCount = newItems.reduce((sum, item) => sum + item.quantity, 0);
 
       return { items: newItems, total, itemCount };
     }
@@ -33,7 +33,7 @@ const cartReducer = (state, action) => {
     case 'REMOVE_ITEM': {
       const newItems = state.items.filter(item => item.id !== action.payload);
       const total = newItems.reduce((sum, item) => sum  (item.price * item.quantity), 0);
-      const itemCount = newItems.reduce((sum, item) => sum  item.quantity, 0);
+      const itemCount = newItems.reduce((sum, item) => sum + item.quantity, 0);
 
       return { items: newItems, total, itemCount };
     }
@@ -46,7 +46,7 @@ const cartReducer = (state, action) => {
       ).filter(item => item.quantity > 0);
 
       const total = newItems.reduce((sum, item) => sum  (item.price * item.quantity), 0);
-      const itemCount = newItems.reduce((sum, item) => sum  item.quantity, 0);
+      const itemCount = newItems.reduce((sum, item) => sum + item.quantity, 0);
 
       return { items: newItems, total, itemCount };
     }

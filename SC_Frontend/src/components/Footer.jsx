@@ -69,7 +69,7 @@ const Footer = () => {
 
         <div className="border-t border-white/20 mt-8 pt-8 text-center">
           <p className="text-white/60 text-sm">
-            © 2024 Sip & Chill. All rights reserved. Made with ❤️ and lots of coffee.
+            © 2025 Sip & Chill. All rights reserved. Made with ❤️ and lots of coffee.
           </p>
         </div>
       </div>

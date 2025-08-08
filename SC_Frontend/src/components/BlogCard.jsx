@@ -38,7 +38,8 @@ const BlogCard = ({ post }) => {
 
   return (
     <div ref={cardRef} className="group">
-      <Link to={`/blog/${post._id}`}>
+      {/* ✅ Use id instead of _id */}
+      <Link to={`/blog/${post.id}`}>
         <article className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer">
           {/* Image */}
           <div className="relative overflow-hidden">

@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Layout from './components/Layout';
+import ScrollToTop from "./components/ScrollToTop"
 import Home from './pages/Home';
 import Contact from './pages/Contact';
 import Menu from './pages/Menu';
@@ -22,6 +23,7 @@ import BlogPost from './pages/Blog/BlogPost';
 function App() {
   return (
     <Router>
+    <ScrollToTop />
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />

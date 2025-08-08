@@ -444,7 +444,7 @@ export const blogPosts = [
     excerpt: 'Discover the secrets behind brewing the perfect cup of coffee at home.',
     image: 'https://readdy.ai/api/search-image?query=Coffee%20brewing%20process%20with%20pour%20over%20dripper%2C%20steaming%20coffee%2C%20coffee%20beans%2C%20warm%20brown%20wooden%20background%2C%20cozy%20caf%C3%A9%20atmosphere%2C%20artisanal%20coffee%20preparation%20ritual&width=600&height=400&seq=blog-1&orientation=landscape',
     author: 'Sarah Johnson',
-    date: '2024-01-15',
+    date: '2025-01-15',
     readTime: '5 min read',
     category: 'Coffee Tips'
   },
@@ -454,7 +454,7 @@ export const blogPosts = [
     excerpt: 'Explore our new winter menu featuring warming spices and comfort flavors.',
     image: 'https://readdy.ai/api/search-image?query=Seasonal%20winter%20menu%20items%20with%20warm%20spices%2C%20cinnamon%20sticks%2C%20star%20anise%2C%20cozy%20caf%C3%A9%20setting%2C%20warm%20brown%20atmosphere%2C%20comfort%20food%20presentation%2C%20rustic%20wooden%20background&width=600&height=400&seq=blog-2&orientation=landscape',
     author: 'Mike Chen',
-    date: '2024-01-10',
+    date: '2025-01-10',
     readTime: '3 min read',
     category: 'Menu'
   },
@@ -464,7 +464,7 @@ export const blogPosts = [
     excerpt: 'Learn about our commitment to ethical and sustainable coffee sourcing.',
     image: 'https://readdy.ai/api/search-image?query=Coffee%20farmers%20harvesting%20coffee%20beans%2C%20sustainable%20farming%20practices%2C%20green%20coffee%20plants%2C%20warm%20natural%20lighting%2C%20ethical%20sourcing%20concept%2C%20earth-friendly%20agriculture&width=600&height=400&seq=blog-3&orientation=landscape',
     author: 'Emma Davis',
-    date: '2024-01-05',
+    date: '2025-01-05',
     readTime: '7 min read',
     category: 'Sustainability'
   }

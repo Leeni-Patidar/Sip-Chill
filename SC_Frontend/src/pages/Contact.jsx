@@ -285,7 +285,7 @@ const Contact = () => {
 
 
       {/* Map Section */}
-      <section ref={mapRef} className="pb-20">
+      {/* <section ref={mapRef} className="pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-800 mb-4">Find Us</h2>
@@ -324,7 +324,7 @@ const Contact = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
        {/* Quick Contact CTA */}
       <section className="bg-gradient-to-r from-amber-700 to-amber-900 text-white py-16">

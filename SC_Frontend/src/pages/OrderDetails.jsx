@@ -142,7 +142,7 @@ const OrderDetails = () => {
             </div>
             <div className="text-right">
               <span className={`inline-block px-4 py-2 text-sm font-medium rounded-full border ${getStatusColor(order.status)}`}>
-                {order.status.charAt(0).toUpperCase()  order.status.slice(1)}
+                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
               </span>
               <p className="text-2xl font-bold text-gray-900 mt-2">₹{order.total}</p>
             </div>
@@ -199,7 +199,7 @@ const OrderDetails = () => {
                         : 'bg-white text-blue-600 border border-blue-300 hover:bg-blue-50'
                     }`}
                   >
-                    {status.charAt(0).toUpperCase()  status.slice(1)}
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
                   </button>
                 ))}
               </div>

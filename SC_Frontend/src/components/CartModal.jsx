@@ -54,7 +54,7 @@ const CartModal = ({ isOpen, onClose }) => {
                         <i className="ri-subtract-line text-sm"></i>
                       </button>
                       <span className="w-8 text-center font-medium">{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.id, item.quantity  1)} className="w-8 h-8 flex items-center justify-center bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-colors cursor-pointer">
+                      <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-8 h-8 flex items-center justify-center bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-colors cursor-pointer">
                         <i className="ri-add-line text-sm"></i>
                       </button>
                       <button onClick={() => removeItem(item.id)} className="w-8 h-8 flex items-center justify-center text-red-500 hover:bg-red-50 rounded-full transition-colors cursor-pointer ml-2">

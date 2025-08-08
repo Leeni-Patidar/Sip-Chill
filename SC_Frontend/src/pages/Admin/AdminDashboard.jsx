@@ -38,7 +38,7 @@ const AdminDashboard = () => {
   }, [activeTab]);
 
   // Analytics calculations
-  const totalRevenue = orders.reduce((sum, order) => sum  order.total, 0);
+  const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
   const totalOrders = orders.length;
   const totalProducts = adminProducts.length;
   const todayOrders = orders.filter(order => 
@@ -46,7 +46,7 @@ const AdminDashboard = () => {
   ).length;
 
   const ordersByStatus = orders.reduce((acc, order) => {
-    acc[order.status] = (acc[order.status] || 0)  1;
+    acc[order.status] = (acc[order.status] || 0) + 1;
     return acc;
   }, {});
 
@@ -190,7 +190,7 @@ const AdminDashboard = () => {
                     <div key={status} className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
                         <span className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(status)}`}>
-                          {status.charAt(0).toUpperCase()  status.slice(1)}
+                          {status.charAt(0).toUpperCase() + status.slice(1)}
                         </span>
                       </div>
                       <span className="font-semibold text-gray-900">{count}</span>
