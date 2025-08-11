@@ -34,13 +34,22 @@ const Footer = () => {
           {/* Quick Links */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
-              <li><a href="/" className="text-white/80 hover:text-white transition-colors">Home</a></li>
-              <li><a href="/shop" className="text-white/80 hover:text-white transition-colors">Shop</a></li>
-              <li><a href="/menu" className="text-white/80 hover:text-white transition-colors">Menu</a></li>
-              <li><a href="/blog" className="text-white/80 hover:text-white transition-colors">Blog</a></li>
-              <li><a href="/contact" className="text-white/80 hover:text-white transition-colors">Contact</a></li>
-            </ul>
+            <div className="grid grid-cols-2 gap-4">
+              <ul className="space-y-2">
+                <li><a href="/" className="text-white/80 hover:text-white transition-colors">Home</a></li>
+                <li><a href="/shop" className="text-white/80 hover:text-white transition-colors">Shop</a></li>
+                <li><a href="/menu" className="text-white/80 hover:text-white transition-colors">Menu</a></li>
+                <li><a href="/blog" className="text-white/80 hover:text-white transition-colors">Blog</a></li>
+                <li><a href="/contact" className="text-white/80 hover:text-white transition-colors">Contact</a></li>
+              </ul>
+              <ul className="space-y-2">
+                <li><a href="/terms-and-conditions" className="text-white/80 hover:text-white transition-colors">Terms and Conditions</a></li>
+                <li><a href="/privacy-policy" className="text-white/80 hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="/shipping-and-delivery" className="text-white/80 hover:text-white transition-colors">Shipping and Delivery</a></li>
+                <li><a href="/cancellation-refund" className="text-white/80 hover:text-white transition-colors">Cancellation & Refund</a></li>
+                <li><a href="/faq" className="text-white/80 hover:text-white transition-colors">FAQ</a></li>
+              </ul>
+            </div>
           </div>
 
           {/* Contact Info */}

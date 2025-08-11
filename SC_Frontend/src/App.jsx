@@ -19,6 +19,11 @@ import OrderDetails from './pages/OrderDetails';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import NotFound from './components/NotFound';
 import BlogPost from './pages/Blog/BlogPost';
+import TermsAndConditions from './pages/TermsAndConditions';
+import ShippingAndDelivery from './pages/ShippingAndDelivery';
+import CancellationRefund from './pages/CancellationRefund';
+import FAQ from './pages/FAQ';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 function App() {
   return (
@@ -41,6 +46,11 @@ function App() {
           <Route path="/order-confirmation" element={<OrderConfirmation />} />
           <Route path="/orders/:orderId" element={<OrderDetails />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+          <Route path="/shipping-and-delivery" element={<ShippingAndDelivery />} />
+          <Route path="/cancellation-refund" element={<CancellationRefund/>}/>
+           <Route path="/faq" element={<FAQ />}/>
+            <Route path="/privacy-policy" element={<PrivacyPolicy/>}/>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>
