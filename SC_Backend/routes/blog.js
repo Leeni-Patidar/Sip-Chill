@@ -1,34 +1,26 @@
-
 const express = require('express');
 const { query } = require('../config/database');
 
 const router = express.Router();
 
-// @desc    Get all blog posts
-// @route   GET /api/blog
-// @access  Public
+/**
+ * @desc Get all blog posts
+ * @route GET /api/blog
+ * @access Public
+ */
 router.get('/', async (req, res) => {
   try {
-    const { 
-      page = 1, 
-      limit = 10, 
-      status = 'published',
-      search,
-      author
-    } = req.query;
-
+    const { page = 1, limit = 10, status = 'published', search, author } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
     let conditions = ['bp.status = ?'];
     let params = [status];
 
-    // Search filter
     if (search) {
       conditions.push('(bp.title LIKE ? OR bp.content LIKE ? OR bp.excerpt LIKE ?)');
       params.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
 
-    // Author filter
     if (author) {
       conditions.push('u.id = ?');
       params.push(author);
@@ -36,21 +28,11 @@ router.get('/', async (req, res) => {
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
-    // Get blog posts
     const posts = await query(`
       SELECT 
-        bp.id,
-        bp.title,
-        bp.slug,
-        bp.excerpt,
-        bp.featured_image,
-        bp.status,
-        bp.published_at,
-        bp.created_at,
-        bp.updated_at,
-        u.first_name,
-        u.last_name,
-        u.email as author_email
+        bp.id, bp.title, bp.slug, bp.excerpt, bp.featured_image,
+        bp.status, bp.published_at, bp.created_at, bp.updated_at,
+        u.first_name, u.last_name, u.email AS author_email
       FROM blog_posts bp
       LEFT JOIN users u ON bp.author_id = u.id
       ${whereClause}
@@ -58,16 +40,12 @@ router.get('/', async (req, res) => {
       LIMIT ? OFFSET ?
     `, [...params, parseInt(limit), offset]);
 
-    // Get total count for pagination
-    const countResult = await query(`
+    const [{ total }] = await query(`
       SELECT COUNT(*) as total
       FROM blog_posts bp
       LEFT JOIN users u ON bp.author_id = u.id
       ${whereClause}
     `, params);
-
-    const total = countResult[0].total;
-    const totalPages = Math.ceil(total / parseInt(limit));
 
     res.json({
       success: true,
@@ -75,7 +53,7 @@ router.get('/', async (req, res) => {
         posts,
         pagination: {
           current_page: parseInt(page),
-          total_pages: totalPages,
+          total_pages: Math.ceil(total / parseInt(limit)),
           total_items: total,
           items_per_page: parseInt(limit)
         }
@@ -83,31 +61,23 @@ router.get('/', async (req, res) => {
     });
   } catch (error) {
     console.error('Get blog posts error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error getting blog posts' 
-    });
+    res.status(500).json({ success: false, message: 'Server error getting blog posts' });
   }
 });
 
-// @desc    Get featured blog posts
-// @route   GET /api/blog/featured
-// @access  Public
+/**
+ * @desc Get featured blog posts
+ * @route GET /api/blog/featured
+ * @access Public
+ */
 router.get('/featured', async (req, res) => {
   try {
     const { limit = 3 } = req.query;
-
     const posts = await query(`
       SELECT 
-        bp.id,
-        bp.title,
-        bp.slug,
-        bp.excerpt,
-        bp.featured_image,
-        bp.published_at,
-        bp.created_at,
-        u.first_name,
-        u.last_name
+        bp.id, bp.title, bp.slug, bp.excerpt, bp.featured_image,
+        bp.published_at, bp.created_at,
+        u.first_name, u.last_name
       FROM blog_posts bp
       LEFT JOIN users u ON bp.author_id = u.id
       WHERE bp.status = 'published'
@@ -115,164 +85,57 @@ router.get('/featured', async (req, res) => {
       LIMIT ?
     `, [parseInt(limit)]);
 
-    res.json({
-      success: true,
-      data: posts
-    });
+    res.json({ success: true, data: posts });
   } catch (error) {
     console.error('Get featured blog posts error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error getting featured blog posts' 
-    });
+    res.status(500).json({ success: false, message: 'Server error getting featured blog posts' });
   }
 });
 
-// @desc    Get single blog post
-// @route   GET /api/blog/:id
-// @access  Public
-router.get('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    // Get blog post details
-    const posts = await query(`
-      SELECT 
-        bp.id,
-        bp.title,
-        bp.slug,
-        bp.content,
-        bp.excerpt,
-        bp.featured_image,
-        bp.status,
-        bp.published_at,
-        bp.created_at,
-        bp.updated_at,
-        u.id as author_id,
-        u.first_name,
-        u.last_name,
-        u.email as author_email
-      FROM blog_posts bp
-      LEFT JOIN users u ON bp.author_id = u.id
-      WHERE bp.id = ? AND bp.status = 'published'
-    `, [id]);
-
-    if (posts.length === 0) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Blog post not found' 
-      });
-    }
-
-    const post = posts[0];
-
-    // Get related posts (same author or similar tags)
-    const relatedPosts = await query(`
-      SELECT 
-        id,
-        title,
-        slug,
-        excerpt,
-        featured_image,
-        published_at
-      FROM blog_posts
-      WHERE status = 'published' 
-        AND id != ? 
-        AND (author_id = ? OR title LIKE ?)
-      ORDER BY published_at DESC
-      LIMIT 3
-    `, [id, post.author_id, `%${post.title.split(' ')[0]}%`]);
-
-    res.json({
-      success: true,
-      data: {
-        ...post,
-        related_posts: relatedPosts
-      }
-    });
-  } catch (error) {
-    console.error('Get blog post error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error getting blog post' 
-    });
-  }
-});
-
-// @desc    Get blog post by slug
-// @route   GET /api/blog/slug/:slug
-// @access  Public
+/**
+ * @desc Get blog post by slug
+ * @route GET /api/blog/slug/:slug
+ * @access Public
+ */
 router.get('/slug/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
-
-    // Get blog post details
     const posts = await query(`
       SELECT 
-        bp.id,
-        bp.title,
-        bp.slug,
-        bp.content,
-        bp.excerpt,
-        bp.featured_image,
-        bp.status,
-        bp.published_at,
-        bp.created_at,
-        bp.updated_at,
-        u.id as author_id,
-        u.first_name,
-        u.last_name,
-        u.email as author_email
+        bp.id, bp.title, bp.slug, bp.content, bp.excerpt, bp.featured_image,
+        bp.status, bp.published_at, bp.created_at, bp.updated_at,
+        u.id AS author_id, u.first_name, u.last_name, u.email AS author_email
       FROM blog_posts bp
       LEFT JOIN users u ON bp.author_id = u.id
       WHERE bp.slug = ? AND bp.status = 'published'
     `, [slug]);
 
     if (posts.length === 0) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Blog post not found' 
-      });
+      return res.status(404).json({ success: false, message: 'Blog post not found' });
     }
 
     const post = posts[0];
-
-    // Get related posts
     const relatedPosts = await query(`
-      SELECT 
-        id,
-        title,
-        slug,
-        excerpt,
-        featured_image,
-        published_at
+      SELECT id, title, slug, excerpt, featured_image, published_at
       FROM blog_posts
-      WHERE status = 'published' 
-        AND id != ? 
+      WHERE status = 'published' AND id != ? 
         AND (author_id = ? OR title LIKE ?)
       ORDER BY published_at DESC
       LIMIT 3
     `, [post.id, post.author_id, `%${post.title.split(' ')[0]}%`]);
 
-    res.json({
-      success: true,
-      data: {
-        ...post,
-        related_posts: relatedPosts
-      }
-    });
+    res.json({ success: true, data: { ...post, related_posts: relatedPosts } });
   } catch (error) {
     console.error('Get blog post by slug error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error getting blog post' 
-    });
+    res.status(500).json({ success: false, message: 'Server error getting blog post' });
   }
 });
 
-// @desc    Search blog posts
-// @route   GET /api/blog/search/:query
-// @access  Public
+/**
+ * @desc Search blog posts
+ * @route GET /api/blog/search/:query
+ * @access Public
+ */
 router.get('/search/:query', async (req, res) => {
   try {
     const { query: searchQuery } = req.params;
@@ -280,15 +143,9 @@ router.get('/search/:query', async (req, res) => {
 
     const posts = await query(`
       SELECT 
-        bp.id,
-        bp.title,
-        bp.slug,
-        bp.excerpt,
-        bp.featured_image,
-        bp.published_at,
-        bp.created_at,
-        u.first_name,
-        u.last_name
+        bp.id, bp.title, bp.slug, bp.excerpt, bp.featured_image,
+        bp.published_at, bp.created_at,
+        u.first_name, u.last_name
       FROM blog_posts bp
       LEFT JOIN users u ON bp.author_id = u.id
       WHERE bp.status = 'published'
@@ -297,29 +154,24 @@ router.get('/search/:query', async (req, res) => {
       LIMIT ?
     `, [`%${searchQuery}%`, `%${searchQuery}%`, `%${searchQuery}%`, parseInt(limit)]);
 
-    res.json({
-      success: true,
-      data: posts
-    });
+    res.json({ success: true, data: posts });
   } catch (error) {
     console.error('Search blog posts error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error searching blog posts' 
-    });
+    res.status(500).json({ success: false, message: 'Server error searching blog posts' });
   }
 });
 
-// @desc    Get blog categories/tags (based on common words in titles)
-// @route   GET /api/blog/categories
-// @access  Public
+/**
+ * @desc Get blog categories
+ * @route GET /api/blog/categories
+ * @access Public
+ */
 router.get('/categories', async (req, res) => {
   try {
-    // Get common words from blog post titles as categories
     const categories = await query(`
       SELECT 
-        LOWER(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(title, ' ', 1), ' ', 1))) as category,
-        COUNT(*) as post_count
+        LOWER(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(title, ' ', 1), ' ', 1))) AS category,
+        COUNT(*) AS post_count
       FROM blog_posts
       WHERE status = 'published'
       GROUP BY LOWER(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(title, ' ', 1), ' ', 1)))
@@ -327,18 +179,51 @@ router.get('/categories', async (req, res) => {
       ORDER BY post_count DESC
       LIMIT 10
     `);
-
-    res.json({
-      success: true,
-      data: categories
-    });
+    res.json({ success: true, data: categories });
   } catch (error) {
     console.error('Get blog categories error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error getting blog categories' 
-    });
+    res.status(500).json({ success: false, message: 'Server error getting blog categories' });
+  }
+});
+
+/**
+ * @desc Get blog post by ID
+ * @route GET /api/blog/:id
+ * @access Public
+ */
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const posts = await query(`
+      SELECT 
+        bp.id, bp.title, bp.slug, bp.content, bp.excerpt, bp.featured_image,
+        bp.status, bp.published_at, bp.created_at, bp.updated_at,
+        u.id AS author_id, u.first_name, u.last_name, u.email AS author_email
+      FROM blog_posts bp
+      LEFT JOIN users u ON bp.author_id = u.id
+      WHERE bp.id = ? AND bp.status = 'published'
+    `, [id]);
+
+    if (posts.length === 0) {
+      return res.status(404).json({ success: false, message: 'Blog post not found' });
+    }
+
+    const post = posts[0];
+    const relatedPosts = await query(`
+      SELECT id, title, slug, excerpt, featured_image, published_at
+      FROM blog_posts
+      WHERE status = 'published' AND id != ? 
+        AND (author_id = ? OR title LIKE ?)
+      ORDER BY published_at DESC
+      LIMIT 3
+    `, [id, post.author_id, `%${post.title.split(' ')[0]}%`]);
+
+    res.json({ success: true, data: { ...post, related_posts: relatedPosts } });
+  } catch (error) {
+    console.error('Get blog post error:', error);
+    res.status(500).json({ success: false, message: 'Server error getting blog post' });
   }
 });
 
 module.exports = router;
+
