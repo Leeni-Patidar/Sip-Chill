@@ -1,18 +1,15 @@
-
 const mysql = require('mysql2/promise');
 
 const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
+  password: process.env.DB_PASSWORD || '2004',
   database: process.env.DB_NAME || 'sip_chill_db',
-  port: process.env.DB_PORT || 3306,
+  port: process.env.DB_PORT || 3307,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  acquireTimeout: 60000,
-  timeout: 60000,
-  reconnect: true
+  connectTimeout: 60000 // ✅ replaces acquireTimeout
 };
 
 let pool;
