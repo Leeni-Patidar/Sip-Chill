@@ -131,21 +131,22 @@ const createTables = async () => {
       )
     `);
 
-    // Order items table
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS order_items (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        order_id INT NOT NULL,
-        product_id INT NOT NULL,
-        product_name VARCHAR(255) NOT NULL,
-        product_price DECIMAL(10,2) NOT NULL,
-        quantity INT NOT NULL,
-        special_instructions TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
-      )
-    `);
+// Order items table
+await connection.execute(`
+  CREATE TABLE IF NOT EXISTS order_items (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT NOT NULL,
+    product_id INT,
+    product_name VARCHAR(255) NOT NULL,
+    product_price DECIMAL(10,2) NOT NULL,
+    quantity INT NOT NULL,
+    special_instructions TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
+  )
+`);
+
 
     // Blog posts table
     await connection.execute(`
