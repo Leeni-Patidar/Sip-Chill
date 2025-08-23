@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
@@ -10,7 +8,8 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
+    first_name: '',
+    last_name: '',
     email: '',
     phone: '',
     address: ''
@@ -24,7 +23,8 @@ const Profile = () => {
     
     if (user) {
       setFormData({
-        name: user.name || '',
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
         email: user.email || '',
         phone: user.phone || '',
         address: user.address || ''
@@ -89,19 +89,21 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 py-26 px-4 sm:px-6 lg:px-8">
       <div className="profile-container max-w-4xl mx-auto">
         {/* Header */}
         <div className="profile-card bg-white rounded-2xl shadow-xl p-8 mb-8">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
               <img
-                src={user.avatar}
-                alt={user.name}
+                src={user.avatar || `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&background=d97706&color=fff`}
+                alt={`${user.first_name} ${user.last_name}`}
                 className="w-16 h-16 rounded-full border-4 border-amber-200"
               />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {user.first_name} {user.last_name}
+                </h1>
                 <p className="text-gray-600">{user.email}</p>
                 <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full mt-2 ${
                   user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
@@ -173,12 +175,24 @@ const Profile = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Full Name
+                      First Name
                     </label>
                     <input
                       type="text"
-                      name="name"
-                      value={formData.name}
+                      name="first_name"
+                      value={formData.first_name}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Last Name
+                    </label>
+                    <input
+                      type="text"
+                      name="last_name"
+                      value={formData.last_name}
                       onChange={handleChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                     />
@@ -242,7 +256,7 @@ const Profile = () => {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-500 mb-1">Full Name</label>
-                    <p className="text-gray-900">{user.name || 'Not provided'}</p>
+                    <p className="text-gray-900">{user.first_name} {user.last_name}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-500 mb-1">Email Address</label>
