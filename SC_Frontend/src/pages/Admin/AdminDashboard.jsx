@@ -5,20 +5,49 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import ProductManagement from "./ProductManagement";
 import OrderManagement from "./OrderManagement";
-import { products } from "../../context/mock-data";
+import { getDashboardStats, getAllOrders, getAllUsers, getProductAnalytics } from '../../api/admin';
+import { getAllProducts } from '../../api/products';
 
 
 const AdminDashboard = () => {
-  const { user, isAuthenticated, orders } = useAuth();
+
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
-  const [adminProducts, setAdminProducts] = useState(products);
+  const [adminProducts, setAdminProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [dashboardStats, setDashboardStats] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!isAuthenticated || user?.role !== 'admin') {
       navigate('/');
       return;
     }
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [ordersRes, productsRes, statsRes, analyticsRes, usersRes] = await Promise.all([
+          getAllOrders(),
+          getAllProducts(),
+          getDashboardStats(),
+          getProductAnalytics(),
+          getAllUsers()
+        ]);
+        setOrders(ordersRes.data);
+        setAdminProducts(productsRes.data);
+        setDashboardStats(statsRes.data);
+        setAnalytics(analyticsRes.data);
+        setUsers(usersRes.data);
+      } catch (err) {
+        // handle error
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, [isAuthenticated, user, navigate]);
 
   useEffect(() => {

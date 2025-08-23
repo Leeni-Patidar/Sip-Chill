@@ -1,16 +1,29 @@
 
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { getAllOrders, updateOrderStatus as apiUpdateOrderStatus } from '../../api/admin';
 import { Link } from 'react-router-dom';
 
-const OrderManagement = ({ orders }) => {
-  const { updateOrderStatus } = useAuth();
+const OrderManagement = () => {
+  const [orders, setOrders] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortBy, setSortBy] = useState('date');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchOrders = async () => {
+      setLoading(true);
+      try {
+        const res = await getAllOrders();
+        setOrders(res.data);
+      } catch (err) {
+        // handle error
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrders();
     // GSAP Animation
     if (typeof window !== 'undefined') {
       import('gsap').then(({ gsap }) => {
@@ -48,8 +61,13 @@ const OrderManagement = ({ orders }) => {
     }
   };
 
-  const handleStatusUpdate = (orderId, newStatus) => {
-    updateOrderStatus(orderId, newStatus);
+  const handleStatusUpdate = async (orderId, newStatus) => {
+    try {
+      await apiUpdateOrderStatus(orderId, { status: newStatus });
+      setOrders(orders => orders.map(order => order.id === orderId ? { ...order, status: newStatus } : order));
+    } catch (err) {
+      // handle error
+    }
   };
 
   const filteredOrders = orders

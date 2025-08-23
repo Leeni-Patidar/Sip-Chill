@@ -1,9 +1,60 @@
-
 const express = require('express');
-const { query } = require('../config/database');
-const { optionalAuth } = require('../middleware/auth');
-
 const router = express.Router();
+const { query } = require('../config/database');
+const { optionalAuth, protect, authorize } = require('../middleware/auth');
+// @desc    Create a new product (menu item)
+// @route   POST /api/products
+// @access  Admin
+router.post('/', protect, authorize('admin'), async (req, res) => {
+  try {
+    const { name, description, price, image_url, category_id, is_featured, stock_quantity, allergens, nutritional_info } = req.body;
+    if (!name || !price || !category_id) {
+      return res.status(400).json({ success: false, message: 'Name, price, and category are required.' });
+    }
+    const result = await query(
+      `INSERT INTO products (name, description, price, image_url, category_id, is_featured, stock_quantity, allergens, nutritional_info, is_available)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)`,
+      [name, description, price, image_url, category_id, is_featured || false, stock_quantity || 0, allergens, nutritional_info]
+    );
+    res.status(201).json({ success: true, productId: result.insertId });
+  } catch (error) {
+    console.error('Create product error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @desc    Update a product (menu item)
+// @route   PUT /api/products/:id
+// @access  Admin
+router.put('/:id', protect, authorize('admin'), async (req, res) => {
+  try {
+    const { name, description, price, image_url, category_id, is_featured, stock_quantity, allergens, nutritional_info, is_available } = req.body;
+    const { id } = req.params;
+    const result = await query(
+      `UPDATE products SET name=?, description=?, price=?, image_url=?, category_id=?, is_featured=?, stock_quantity=?, allergens=?, nutritional_info=?, is_available=? WHERE id=?`,
+      [name, description, price, image_url, category_id, is_featured, stock_quantity, allergens, nutritional_info, is_available, id]
+    );
+    res.json({ success: true, affectedRows: result.affectedRows });
+  } catch (error) {
+    console.error('Update product error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @desc    Delete a product (menu item)
+// @route   DELETE /api/products/:id
+// @access  Admin
+router.delete('/:id', protect, authorize('admin'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await query(`DELETE FROM products WHERE id=?`, [id]);
+    res.json({ success: true, affectedRows: result.affectedRows });
+  } catch (error) {
+    console.error('Delete product error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 
 // @desc    Get all products with optional filtering
 // @route   GET /api/products

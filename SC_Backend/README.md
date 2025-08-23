@@ -43,7 +43,7 @@ A complete Node.js backend API for the "Sip & Chill" café application, built wi
    Edit `.env` file with your configuration:
    ```env
    # Server Configuration
-   PORT=5000
+   PORT=5002
    NODE_ENV=development
    
    # Database Configuration
@@ -265,7 +265,7 @@ After running the seed script, you'll have:
 ### Environment Variables for Production
 ```env
 NODE_ENV=production
-PORT=5000
+PORT=5002
 DB_HOST=your_production_db_host
 DB_USER=your_production_db_user
 DB_PASSWORD=your_production_db_password

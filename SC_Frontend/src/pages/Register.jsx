@@ -1,10 +1,12 @@
 
-'use client';
+'use client'
 
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react'
+import { useAuth } from '../context/AuthContext'
+import { useNavigate, Link } from 'react-router-dom'
+import axios from 'axios'
 
+const api = axios.create({ baseURL: import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:5002' }) // Replace with your backend URL
 const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -13,15 +15,17 @@ const Register = () => {
     password: '',
     confirmPassword: ''
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [errors, setErrors] = useState({});
-  const { register, isLoading, error, isAuthenticated } = useAuth();
-  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [errors, setErrors] = useState({})
+  const [isLoading, setIsLoading] = useState(false)
+  const [apiError, setApiError] = useState(null)
+  const { login, isAuthenticated } = useAuth(); // Use login from AuthContext
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/profile');
+      navigate('/profile')
     }
   }, [isAuthenticated, navigate]);
 
@@ -32,12 +36,12 @@ const Register = () => {
         gsap.fromTo('.register-container', 
           { opacity: 0, y: 30 },
           { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
-        );
+        )
         gsap.fromTo('.register-form', 
           { opacity: 0, y: 20 },
           { opacity: 1, y: 0, duration: 0.8, delay: 0.2, ease: 'power2.out' }
-        );
-      });
+        )
+      })
     }
   }, []);
 
@@ -45,7 +49,7 @@ const Register = () => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
-    });
+    })
     
     // Clear specific error when user starts typing
     if (errors[e.target.name]) {
@@ -59,26 +63,26 @@ const Register = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+ if (!formData.name.trim()) {
+ newErrors.name = 'Name is required'
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+ newErrors.email = 'Email is required'
     } else if (!/\S@\S\.\S/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+ newErrors.email = 'Email is invalid'
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+ newErrors.password = 'Password is required'
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+ newErrors.password = 'Password must be at least 6 characters'
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
+ newErrors.confirmPassword = 'Please confirm your password'
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+ newErrors.confirmPassword = 'Passwords do not match'
     }
 
     setErrors(newErrors);
@@ -88,15 +92,25 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return
 
-    const result = await register(formData);
-    if (result.success) {
-      navigate('/profile');
+ setApiError(null)
+    setIsLoading(true)
+
+    try {
+      const response = await api.post('/api/auth/register', formData)
+      // Assuming your backend returns user data or a token on successful registration
+      // Adjust this based on your actual backend response
+      login(response.data.token) // Assuming the backend returns a 'token' field
+      navigate('/profile')
+    } catch (err) {
+      setApiError(err.response?.data?.message || 'Registration failed. Please try again.')
+    } finally {
+      setIsLoading(false)
     }
-  };
+  }
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100  pt-25 py-12 px-4 sm:px-6 lg:px-8">
@@ -110,11 +124,11 @@ const Register = () => {
         </div>
 
         <div className="register-form bg-white rounded-2xl shadow-xl p-8">
-          {error && (
+          {apiError && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
               <div className="flex items-center">
                 <i className="ri-error-warning-line text-red-500 mr-2"></i>
-                <p className="text-red-700 text-sm">{error}</p>
+                <p className="text-red-700 text-sm">{apiError}</p>
               </div>
             </div>
           )}

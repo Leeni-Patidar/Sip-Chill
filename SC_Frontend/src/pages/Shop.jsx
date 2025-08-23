@@ -1,22 +1,43 @@
-'use client';
-
 import React, { useState, useEffect, Suspense } from 'react';
+import axios from 'axios';
 import ProductCard from '../components/ProductCard';
-import { products, categories } from '../context/mock-data';
+import { categories } from '../context/mock-data'; // Assuming categories are static or fetched elsewhere
+
+const api = axios.create({
+  baseURL: 'YOUR_BACKEND_API_URL', // **Replace with your backend API URL**
+});
 
 function ShopContent() {
+  const [products, setProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('name');
   const [priceRange, setPriceRange] = useState('all');
-  const [filteredProducts, setFilteredProducts] = useState(products);
-
-  // 🔧 Optional: useEffect to reset filters on load
-  useEffect(() => {
-    setFilteredProducts(products);
-  }, []);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    let filtered = [...products];
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get('/api/products');
+  // If backend returns { success, data: { products, ... } }
+  const productsArr = response.data?.data?.products || [];
+  setProducts(productsArr);
+  setFilteredProducts(productsArr); // Initialize filtered products with all products
+      } catch (err) {
+        setError('Failed to fetch products.');
+        console.error('Error fetching products:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []); // Fetch products only on component mount
+
+  useEffect(() => {
+    let filtered = [...products]; // Start with the full list of fetched products
 
     // Filter by category
     if (selectedCategory !== 'all') {
@@ -61,7 +82,7 @@ function ShopContent() {
     }
 
     setFilteredProducts(filtered);
-  }, [selectedCategory, sortBy, priceRange]);
+  }, [selectedCategory, sortBy, priceRange, products]); // Re-filter when products state changes
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
@@ -137,24 +158,38 @@ function ShopContent() {
       {/* Product Grid */}
       <section className="pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <p className="text-gray-600">
-              Showing {filteredProducts.length} of {products.length} products
-            </p>
-          </div>
-
-          {filteredProducts.length === 0 ? (
+          {loading ? (
             <div className="text-center py-16">
-              <i className="ri-search-line text-6xl text-gray-300 mb-4"></i>
-              <h3 className="text-xl font-medium text-gray-600 mb-2">No products found</h3>
-              <p className="text-gray-500">Try adjusting your filters to see more results</p>
+              <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading products...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-16 text-red-600">
+              <i className="ri-error-warning-line text-6xl mb-4"></i>
+              <p className="text-xl font-medium mb-2">{error}</p>
+              <p className="text-gray-500">Please try again later.</p>
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+               <div className="md:col-span-4 text-center py-16">
+                 <i className="ri-search-line text-6xl text-gray-300 mb-4"></i>
+                 <h3 className="text-xl font-medium text-gray-600 mb-2">No products found</h3>
+                 <p className="text-gray-500">Try adjusting your filters to see more results</p>
+               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <>
+              <div className="flex justify-between items-center mb-8">
+                <p className="text-gray-600">
+                  Showing {filteredProducts.length} of {products.length} products
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                {filteredProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            </>
           )}
         </div>
       </section>

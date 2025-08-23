@@ -3,30 +3,36 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getOrderById } from '../api/orders';
 
 const OrderDetails = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
-  const { user, isAuthenticated, orders, updateOrderStatus } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
-
-    // Find order by ID
-    const foundOrder = orders.find(o => o.id === orderId);
-    if (!foundOrder) {
-      navigate('/profile');
-      return;
-    }
-
-    setOrder(foundOrder);
-    setLoading(false);
-  }, [orderId, orders, isAuthenticated, navigate]);
+    const fetchOrder = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await getOrderById(orderId);
+        setOrder(response.data);
+      } catch (err) {
+        setError('Order not found.');
+        setOrder(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrder();
+  }, [orderId, isAuthenticated, navigate]);
 
   useEffect(() => {
     // GSAP Animation
@@ -94,14 +100,13 @@ const OrderDetails = () => {
       </div>
     );
   }
-
-  if (!order) {
+  if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
         <div className="text-center">
           <i className="ri-file-search-line text-6xl text-gray-400 mb-4"></i>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Order Not Found</h2>
-          <p className="text-gray-600 mb-6">The order you're looking for doesn't exist.</p>
+          <p className="text-gray-600 mb-6">{error}</p>
           <Link
             to="/profile"
             className="inline-flex items-center px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
@@ -112,6 +117,9 @@ const OrderDetails = () => {
         </div>
       </div>
     );
+  }
+  if (!order) {
+    return null;
   }
 
   return (

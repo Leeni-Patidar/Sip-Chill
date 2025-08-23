@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-
+import { login as apiLogin } from '../api/auth';
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -10,7 +10,8 @@ const Login = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading, error, isAuthenticated } = useAuth();
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
+  const [loginError, setLoginError] = useState(null);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -43,9 +44,15 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = await login(formData.email, formData.password);
-    if (result.success) {
+    setLoginError(null); // Clear previous errors
+    try {
+      const response = await apiLogin(formData);
+      // Assuming your backend returns a token in the response data
+      login(response.data.token); 
       navigate('/profile');
+    } catch (err) {
+      console.error('Login failed:', err);
+      setLoginError(err.response?.data?.message || 'Login failed. Please try again.');
     }
   };
 
@@ -61,11 +68,11 @@ const Login = () => {
         </div>
 
         <div className="login-form bg-white rounded-2xl shadow-xl p-8">
-          {error && (
+          {(error || loginError) && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
               <div className="flex items-center">
                 <i className="ri-error-warning-line text-red-500 mr-2"></i>
-                <p className="text-red-700 text-sm">{error}</p>
+                <p className="text-red-700 text-sm">{error || loginError}</p>
               </div>
             </div>
           )}

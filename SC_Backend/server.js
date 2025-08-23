@@ -18,7 +18,7 @@ const adminRoutes = require('./routes/admin');
 const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5002;
 
 // Connect to database
 connectDB();

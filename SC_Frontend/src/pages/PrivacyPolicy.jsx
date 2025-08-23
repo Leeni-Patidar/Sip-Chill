@@ -1,10 +1,9 @@
-
 import React from 'react';
-import Layout from '../components/Layout'; // Assuming a Layout component for consistent structure
+
 
 const PrivacyPolicy = () => {
   return (
-    <Layout>
+    
       <div className="container mx-auto py-8">
         <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
         <div className="prose max-w-none"> {/* Using prose for basic typography styling, adjust as needed */}
@@ -62,7 +61,7 @@ const PrivacyPolicy = () => {
           </p>
         </div>
       </div>
-    </Layout>
+ 
   );
 };
 
