@@ -36,7 +36,7 @@ const AdminDashboard = () => {
           getProductAnalytics(),
           getAllUsers()
         ]);
-        setOrders(ordersRes.data);
+  setOrders(ordersRes.data.orders);
         setAdminProducts(productsRes.data);
         setDashboardStats(statsRes.data);
         setAnalytics(analyticsRes.data);
@@ -67,19 +67,20 @@ const AdminDashboard = () => {
   }, [activeTab]);
 
   // Analytics calculations
-  const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
-  const totalOrders = orders.length;
+  const safeOrders = Array.isArray(orders) ? orders : [];
+  const totalRevenue = safeOrders.reduce((sum, order) => sum + (order.total || order.total_amount || 0), 0);
+  const totalOrders = safeOrders.length;
   const totalProducts = adminProducts.length;
-  const todayOrders = orders.filter(order => 
+  const todayOrders = safeOrders.filter(order => 
     new Date(order.createdAt).toDateString() === new Date().toDateString()
   ).length;
 
-  const ordersByStatus = orders.reduce((acc, order) => {
+  const ordersByStatus = safeOrders.reduce((acc, order) => {
     acc[order.status] = (acc[order.status] || 0) + 1;
     return acc;
   }, {});
 
-  const recentOrders = orders.slice(0, 5);
+  const recentOrders = (Array.isArray(orders) ? orders : []).slice(0, 5);
 
   const getStatusColor = (status) => {
     switch (status) {

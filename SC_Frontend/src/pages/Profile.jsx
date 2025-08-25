@@ -1,79 +1,96 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate, Link } from "react-router-dom";
 
 const Profile = () => {
   const { user, isAuthenticated, logout, updateProfile, orders } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    email: '',
-    phone: '',
-    address: ''
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    address: "",
+    password: "",
   });
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
-    
+
     if (user) {
       setFormData({
-        first_name: user.first_name || '',
-        last_name: user.last_name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        address: user.address || ''
+        first_name: user.first_name || "",
+        last_name: user.last_name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        address: user.address || "",
+        password: "",
       });
     }
   }, [isAuthenticated, user, navigate]);
 
   useEffect(() => {
-    // GSAP Animation
-    if (typeof window !== 'undefined') {
-      import('gsap').then(({ gsap }) => {
-        gsap.fromTo('.profile-container', 
+    if (typeof window !== "undefined") {
+      import("gsap").then(({ gsap }) => {
+        gsap.fromTo(
+          ".profile-container",
           { opacity: 0, y: 30 },
-          { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
+          { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
         );
-        gsap.fromTo('.profile-card', 
+        gsap.fromTo(
+          ".profile-card",
           { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.8, delay: 0.1, stagger: 0.1, ease: 'power2.out' }
+          { opacity: 1, y: 0, duration: 0.8, delay: 0.1, stagger: 0.1, ease: "power2.out" }
         );
       });
     }
   }, []);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    updateProfile(formData);
-    setIsEditing(false);
+    setError(null);
+    setSuccess(null);
+
+    const { success, error } = await updateProfile(formData);
+    if (success) {
+      setFormData({ ...formData, password: "" }); // clear password
+      setIsEditing(false);
+      setSuccess("Profile updated successfully!");
+    } else {
+      setError(error || "Update failed. Please try again.");
+    }
   };
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'confirmed': return 'bg-blue-100 text-blue-800';
-      case 'preparing': return 'bg-yellow-100 text-yellow-800';
-      case 'shipped': return 'bg-purple-100 text-purple-800';
-      case 'delivered': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "confirmed":
+        return "bg-blue-100 text-blue-800";
+      case "preparing":
+        return "bg-yellow-100 text-yellow-800";
+      case "shipped":
+        return "bg-purple-100 text-purple-800";
+      case "delivered":
+        return "bg-green-100 text-green-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -96,7 +113,10 @@ const Profile = () => {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
               <img
-                src={user.avatar || `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&background=d97706&color=fff`}
+                src={
+                  user.avatar ||
+                  `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&background=d97706&color=fff`
+                }
                 alt={`${user.first_name} ${user.last_name}`}
                 className="w-16 h-16 rounded-full border-4 border-amber-200"
               />
@@ -105,10 +125,14 @@ const Profile = () => {
                   {user.first_name} {user.last_name}
                 </h1>
                 <p className="text-gray-600">{user.email}</p>
-                <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full mt-2 ${
-                  user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
-                }`}>
-                  {user.role === 'admin' ? 'Administrator' : 'Customer'}
+                <span
+                  className={`inline-block px-3 py-1 text-xs font-medium rounded-full mt-2 ${
+                    user.role === "admin"
+                      ? "bg-purple-100 text-purple-800"
+                      : "bg-green-100 text-green-800"
+                  }`}
+                >
+                  {user.role === "admin" ? "Administrator" : "Customer"}
                 </span>
               </div>
             </div>
@@ -116,36 +140,35 @@ const Profile = () => {
               onClick={handleLogout}
               className="flex items-center px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
             >
-              <i className="ri-logout-box-line mr-2"></i>
-              Logout
+              <i className="ri-logout-box-line mr-2"></i> Logout
             </button>
           </div>
 
           {/* Tabs */}
           <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
             <button
-              onClick={() => setActiveTab('profile')}
+              onClick={() => setActiveTab("profile")}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                activeTab === 'profile'
-                  ? 'bg-white text-amber-700 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                activeTab === "profile"
+                  ? "bg-white text-amber-700 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               Profile Info
             </button>
             <button
-              onClick={() => setActiveTab('orders')}
+              onClick={() => setActiveTab("orders")}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                activeTab === 'orders'
-                  ? 'bg-white text-amber-700 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                activeTab === "orders"
+                  ? "bg-white text-amber-700 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               My Orders ({orders.length})
             </button>
-            {user.role === 'admin' && (
+            {user.role === "admin" && (
               <button
-                onClick={() => navigate('/admin')}
+                onClick={() => navigate("/admin")}
                 className="flex-1 py-2 px-4 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
               >
                 Admin Dashboard
@@ -155,20 +178,32 @@ const Profile = () => {
         </div>
 
         {/* Profile Tab */}
-        {activeTab === 'profile' && (
+        {activeTab === "profile" && (
           <div className="profile-card bg-white rounded-2xl shadow-xl p-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Profile Information</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Profile Information
+              </h2>
               {!isEditing && (
                 <button
                   onClick={() => setIsEditing(true)}
                   className="flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
                 >
-                  <i className="ri-edit-line mr-2"></i>
-                  Edit Profile
+                  <i className="ri-edit-line mr-2"></i> Edit Profile
                 </button>
               )}
             </div>
+
+            {error && (
+              <p className="mb-4 text-sm text-red-600 bg-red-50 p-3 rounded">
+                {error}
+              </p>
+            )}
+            {success && (
+              <p className="mb-4 text-sm text-green-600 bg-green-50 p-3 rounded">
+                {success}
+              </p>
+            )}
 
             {isEditing ? (
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -234,6 +269,19 @@ const Profile = () => {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      New Password (optional)
+                    </label>
+                    <input
+                      type="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      placeholder="Leave blank to keep current password"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </div>
                 </div>
                 <div className="flex space-x-4">
                   <button
@@ -255,22 +303,36 @@ const Profile = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-1">Full Name</label>
-                    <p className="text-gray-900">{user.first_name} {user.last_name}</p>
+                    <label className="block text-sm font-medium text-gray-500 mb-1">
+                      Full Name
+                    </label>
+                    <p className="text-gray-900">
+                      {user.first_name} {user.last_name}
+                    </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-1">Email Address</label>
+                    <label className="block text-sm font-medium text-gray-500 mb-1">
+                      Email Address
+                    </label>
                     <p className="text-gray-900">{user.email}</p>
                   </div>
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-1">Phone Number</label>
-                    <p className="text-gray-900">{user.phone || 'Not provided'}</p>
+                    <label className="block text-sm font-medium text-gray-500 mb-1">
+                      Phone Number
+                    </label>
+                    <p className="text-gray-900">
+                      {user.phone || "Not provided"}
+                    </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-1">Address</label>
-                    <p className="text-gray-900">{user.address || 'Not provided'}</p>
+                    <label className="block text-sm font-medium text-gray-500 mb-1">
+                      Address
+                    </label>
+                    <p className="text-gray-900">
+                      {user.address || "Not provided"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -279,53 +341,66 @@ const Profile = () => {
         )}
 
         {/* Orders Tab */}
-        {activeTab === 'orders' && (
+        {activeTab === "orders" && (
           <div className="profile-card bg-white rounded-2xl shadow-xl p-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Order History</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Order History
+              </h2>
               <Link
                 to="/shop"
                 className="flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
               >
-                <i className="ri-shopping-bag-line mr-2"></i>
-                Continue Shopping
+                <i className="ri-shopping-bag-line mr-2"></i> Continue Shopping
               </Link>
             </div>
 
             {orders.length === 0 ? (
               <div className="text-center py-12">
                 <i className="ri-shopping-bag-line text-6xl text-gray-300 mb-4"></i>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
-                <p className="text-gray-600 mb-6">Start shopping to see your orders here</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No orders yet
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Start shopping to see your orders here
+                </p>
                 <Link
                   to="/shop"
                   className="inline-flex items-center px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
                 >
-                  <i className="ri-shopping-bag-line mr-2"></i>
-                  Start Shopping
+                  <i className="ri-shopping-bag-line mr-2"></i> Start Shopping
                 </Link>
               </div>
             ) : (
               <div className="space-y-4">
                 {orders.map((order) => (
-                  <div key={order.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                  <div
+                    key={order._id || order.id}
+                    className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+                  >
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h3 className="font-semibold text-gray-900">Order #{order.id}</h3>
+                        <h3 className="font-semibold text-gray-900">
+                          Order #{order._id || order.id}
+                        </h3>
                         <p className="text-sm text-gray-600">
-                          {new Date(order.createdAt).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
+                          {new Date(order.createdAt).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
                           })}
                         </p>
                       </div>
                       <div className="flex items-center space-x-4">
-                        <span className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(order.status)}`}>
+                        <span
+                          className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(
+                            order.status
+                          )}`}
+                        >
                           {order.status}
                         </span>
                         <Link
-                          to={`/orders/${order.id}`}
+                          to={`/orders/${order._id || order.id}`}
                           className="text-amber-600 hover:text-amber-700 font-medium"
                         >
                           View Details
@@ -333,14 +408,10 @@ const Profile = () => {
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600">
-                          {order.items?.length || 0} item(s)
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-gray-900">₹{order.total}</p>
-                      </div>
+                      <p className="text-sm text-gray-600">
+                        {order.items?.length || 0} item(s)
+                      </p>
+                      <p className="font-semibold text-gray-900">₹{order.total}</p>
                     </div>
                   </div>
                 ))}

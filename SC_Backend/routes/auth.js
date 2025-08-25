@@ -5,6 +5,22 @@ const { query } = require('../config/database');
 
 const router = express.Router();
 
+// Auth middleware
+const authMiddleware = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ success: false, message: 'No token provided' });
+  }
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch {
+    return res.status(401).json({ success: false, message: 'Invalid token' });
+  }
+};
+
 // @desc    Register user
 // @route   POST /api/auth/register
 // @access  Public
@@ -104,25 +120,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Auth middleware for protected routes
-const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ success: false, message: 'No token provided' });
-  }
-  const token = authHeader.split(' ')[1];
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (err) {
-    return res.status(401).json({ success: false, message: 'Invalid token' });
-  }
-};
 
-// @desc    Get current user
-// @route   GET /api/auth/me
-// @access  Private
 router.get('/me', authMiddleware, async (req, res) => {
   try {
     const users = await query(
@@ -138,5 +136,36 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 });
 
-module.exports = router;
+// **Update profile (with optional password)**
+router.put('/update', authMiddleware, async (req, res) => {
+  const { first_name, last_name, phone, address, password } = req.body;
 
+  try {
+    let queryStr = 'UPDATE users SET first_name = ?, last_name = ?, phone = ?, address = ?';
+    const params = [first_name, last_name, phone, address];
+
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+      queryStr += ', password = ?';
+      params.push(hashedPassword);
+    }
+
+    queryStr += ' WHERE id = ?';
+    params.push(req.user.id);
+
+    await query(queryStr, params);
+
+    const [updatedUser] = await query(
+      'SELECT id, email, first_name, last_name, role, address, phone FROM users WHERE id = ?',
+      [req.user.id]
+    );
+
+    res.json(updatedUser);
+  } catch (err) {
+    console.error('Update profile error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+module.exports = router;

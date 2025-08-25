@@ -9,7 +9,6 @@ import Menu from './pages/Menu';
 import Shop from './pages/Shop';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
-import Blog from './pages/Blog/Blog';
 import ProductDetails from './pages/ProductDetails';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -18,7 +17,6 @@ import OrderConfirmation from './pages/OrderConfirmation';
 import OrderDetails from './pages/OrderDetails';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import NotFound from './components/NotFound';
-import BlogPost from './pages/Blog/BlogPost';
 import TermsAndConditions from './pages/TermsAndConditions';
 import ShippingAndDelivery from './pages/ShippingAndDelivery';
 import CancellationRefund from './pages/CancellationRefund';
@@ -37,8 +35,6 @@ function App() {
           <Route path="/shop" element={<Shop />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/:id" element={<BlogPost />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

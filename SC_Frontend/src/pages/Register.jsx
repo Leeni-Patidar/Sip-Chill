@@ -1,87 +1,79 @@
-'use client'
-
-import React, { useState, useEffect } from 'react'
-import { useAuth } from '../context/AuthContext'
-import { useNavigate, Link } from 'react-router-dom'
-import axios from 'axios'
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:5002',
-})
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate, Link } from "react-router-dom";
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    email: '',
-    phone: '',
-    address: '',
-    password: '',
-    confirmPassword: '',
-  })
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [errors, setErrors] = useState({})
-  const [isLoading, setIsLoading] = useState(false)
-  const [apiError, setApiError] = useState(null)
-  const { login, isAuthenticated } = useAuth()
-  const navigate = useNavigate()
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    address: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState(null);
+
+  const { register, isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/profile')
+      navigate("/profile");
     }
-  }, [isAuthenticated, navigate])
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    })
+    });
 
     if (errors[e.target.name]) {
       setErrors({
         ...errors,
-        [e.target.name]: '',
-      })
+        [e.target.name]: "",
+      });
     }
-  }
+  };
 
   const validateForm = () => {
-    const newErrors = {}
+    const newErrors = {};
 
     if (!formData.first_name.trim()) {
-      newErrors.first_name = 'First name is required'
+      newErrors.first_name = "First name is required";
     }
     if (!formData.last_name.trim()) {
-      newErrors.last_name = 'Last name is required'
+      newErrors.last_name = "Last name is required";
     }
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required'
+      newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Email is invalid'
+      newErrors.email = "Email is invalid";
     }
     if (!formData.password) {
-      newErrors.password = 'Password is required'
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters'
+      newErrors.password = "Password must be at least 6 characters";
     }
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password'
+      newErrors.confirmPassword = "Please confirm your password";
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match'
+      newErrors.confirmPassword = "Passwords do not match";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (!validateForm()) return
+    e.preventDefault();
+    if (!validateForm()) return;
 
-    setApiError(null)
-    setIsLoading(true)
+    setApiError(null);
 
     try {
       const payload = {
@@ -91,19 +83,19 @@ const Register = () => {
         phone: formData.phone,
         address: formData.address,
         password: formData.password,
-      }
+      };
 
-      const response = await api.post('/api/auth/register', payload)
-      login(response.data.token)
-      navigate('/profile')
+      const { success, error } = await register(payload);
+
+      if (success) {
+        navigate("/profile");
+      } else {
+        setApiError(error || "Registration failed. Please try again.");
+      }
     } catch (err) {
-      setApiError(
-        err.response?.data?.message || 'Registration failed. Please try again.'
-      )
-    } finally {
-      setIsLoading(false)
+      setApiError("Registration failed. Please try again.");
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 pt-20 py-12 px-4 sm:px-6 lg:px-8">
@@ -147,7 +139,7 @@ const Register = () => {
                   value={formData.first_name}
                   onChange={handleChange}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 ${
-                    errors.first_name ? 'border-red-300' : 'border-gray-300'
+                    errors.first_name ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Enter first name"
                 />
@@ -171,7 +163,7 @@ const Register = () => {
                   value={formData.last_name}
                   onChange={handleChange}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 ${
-                    errors.last_name ? 'border-red-300' : 'border-gray-300'
+                    errors.last_name ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Enter last name"
                 />
@@ -199,7 +191,7 @@ const Register = () => {
                   value={formData.email}
                   onChange={handleChange}
                   className={`w-full px-4 py-3 pl-11 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors ${
-                    errors.email ? 'border-red-300' : 'border-gray-300'
+                    errors.email ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Enter your email"
                   autoComplete="email"
@@ -262,13 +254,13 @@ const Register = () => {
               </label>
               <div className="relative">
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   id="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   className={`w-full px-4 py-3 pl-11 pr-11 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors ${
-                    errors.password ? 'border-red-300' : 'border-gray-300'
+                    errors.password ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Create a password"
                 />
@@ -279,7 +271,7 @@ const Register = () => {
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   <i
-                    className={`ri-${showPassword ? 'eye-off' : 'eye'}-line`}
+                    className={`ri-${showPassword ? "eye-off" : "eye"}-line`}
                   ></i>
                 </button>
               </div>
@@ -298,26 +290,26 @@ const Register = () => {
               </label>
               <div className="relative">
                 <input
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type={showConfirmPassword ? "text" : "password"}
                   id="confirmPassword"
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   className={`w-full px-4 py-3 pl-11 pr-11 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors ${
-                    errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
+                    errors.confirmPassword ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Confirm your password"
                 />
                 <i className="ri-lock-line absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowConfirmPassword(!showConfirmPassword)
-                  }
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   <i
-                    className={`ri-${showConfirmPassword ? 'eye-off' : 'eye'}-line`}
+                    className={`ri-${
+                      showConfirmPassword ? "eye-off" : "eye"
+                    }-line`}
                   ></i>
                 </button>
               </div>
@@ -340,14 +332,14 @@ const Register = () => {
                   Creating Account...
                 </div>
               ) : (
-                'Create Account'
+                "Create Account"
               )}
             </button>
           </form>
 
           <div className="mt-6 pt-6 border-t border-gray-200">
             <p className="text-center text-sm text-gray-600">
-              Already have an account?{' '}
+              Already have an account?{" "}
               <Link
                 to="/login"
                 className="font-medium text-amber-700 hover:text-amber-800 transition-colors"
@@ -359,7 +351,7 @@ const Register = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;
