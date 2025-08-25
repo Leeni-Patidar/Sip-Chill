@@ -12,7 +12,6 @@ const productRoutes = require('./routes/products');
 const categoryRoutes = require('./routes/categories');
 const cartRoutes = require('./routes/cart');
 const orderRoutes = require('./routes/orders');
-const blogRoutes = require('./routes/blog');
 const contactRoutes = require('./routes/contact');
 const adminRoutes = require('./routes/admin');
 const { errorHandler } = require('./middleware/errorHandler');
@@ -65,7 +64,6 @@ app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
-app.use('/api/blog', blogRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
 

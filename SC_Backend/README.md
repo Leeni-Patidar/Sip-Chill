@@ -9,7 +9,6 @@ A complete Node.js backend API for the "Sip & Chill" café application, built wi
 - **Product Management** - Complete CRUD operations for products and categories
 - **Shopping Cart** - Session-based cart for both guests and authenticated users
 - **Order Management** - Full order lifecycle with status tracking
-- **Blog System** - Blog posts with categories and search functionality
 - **Contact Management** - Contact form submissions and café information
 - **Admin Dashboard** - Comprehensive admin panel with analytics
 - **Review System** - Product reviews and ratings
@@ -96,7 +95,6 @@ A complete Node.js backend API for the "Sip & Chill" café application, built wi
 - **cart_items** - Individual cart items
 - **orders** - Order information and status
 - **order_items** - Items in each order
-- **blog_posts** - Blog content
 - **contact_messages** - Contact form submissions
 - **reviews** - Product reviews and ratings
 - **coupons** - Discount codes and promotions
@@ -135,14 +133,6 @@ A complete Node.js backend API for the "Sip & Chill" café application, built wi
 - `GET /api/orders/:id` - Get order details
 - `PUT /api/orders/:id/cancel` - Cancel order
 - `GET /api/orders/track/:orderNumber` - Track order by number
-
-### Blog
-- `GET /api/blog` - Get all blog posts
-- `GET /api/blog/featured` - Get featured posts
-- `GET /api/blog/:id` - Get single post
-- `GET /api/blog/slug/:slug` - Get post by slug
-- `GET /api/blog/search/:query` - Search posts
-- `GET /api/blog/categories` - Get blog categories
 
 ### Contact
 - `POST /api/contact` - Submit contact form
@@ -215,8 +205,6 @@ After running the seed script, you'll have:
 - 13 sample products across 7 categories
 - Hot Coffee, Cold Coffee, Tea, Smoothies, Pastries, Sandwiches, Snacks
 
-### Blog Posts
-- 3 sample blog posts with different topics
 
 ### Coupons
 - `WELCOME10` - 10% off for new customers
@@ -246,7 +234,6 @@ After running the seed script, you'll have:
 │   ├── categories.js        # Category routes
 │   ├── cart.js              # Cart routes
 │   ├── orders.js            # Order routes
-│   ├── blog.js              # Blog routes
 │   ├── contact.js           # Contact routes
 │   ├── users.js             # User routes
 │   └── admin.js             # Admin routes

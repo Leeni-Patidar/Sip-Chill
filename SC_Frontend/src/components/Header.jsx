@@ -46,7 +46,6 @@ const Header = () => {
               <a href="/" className="text-gray-700 hover:text-amber-700 font-medium transition-colors whitespace-nowrap">Home</a>
               <a href="/shop" className="text-gray-700 hover:text-amber-700 font-medium transition-colors whitespace-nowrap">Shop</a>
               <a href="/menu" className="text-gray-700 hover:text-amber-700 font-medium transition-colors whitespace-nowrap">Menu</a>
-              <a href="/blog" className="text-gray-700 hover:text-amber-700 font-medium transition-colors whitespace-nowrap">Blog</a>
               <a href="/contact" className="text-gray-700 hover:text-amber-700 font-medium transition-colors whitespace-nowrap">Contact</a>
             </nav>
 
@@ -135,7 +134,6 @@ const Header = () => {
                 <a href="/" className="text-gray-700 hover:text-amber-700 font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Home</a>
                 <a href="/shop" className="text-gray-700 hover:text-amber-700 font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Shop</a>
                 <a href="/menu" className="text-gray-700 hover:text-amber-700 font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Menu</a>
-                <a href="/blog" className="text-gray-700 hover:text-amber-700 font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Blog</a>
                 <a href="/contact" className="text-gray-700 hover:text-amber-700 font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Contact</a>
                 
                 {/* Mobile Auth Links */}

@@ -4,8 +4,7 @@ import React, { useEffect } from 'react';
 import Hero from '../components/Hero';
 import CategoryCard from '../components/CategoryCard';
 import ProductCard from '../components/ProductCard';
-import BlogCard from '../components/BlogCard';
-import { categories, products, blogPosts } from '../context/mock-data';
+import { categories, products } from '../context/mock-data';
 
 export default function Home() {
   useEffect(() => {
@@ -121,35 +120,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Blog Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-orange-50 to-amber-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-              Latest From Our <span className="text-amber-700">Blog</span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Stay updated with coffee tips, seasonal menus, and café stories
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {blogPosts.map((post) => (
-              <BlogCard key={post.id} post={post} />
-            ))}
-          </div>
-
-          <div className="text-center">
-            <a
-              href="/blog"
-              className="inline-flex items-center bg-amber-700 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-amber-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl whitespace-nowrap"
-            >
-              Read More Stories
-              <i className="ri-arrow-right-line ml-2"></i>
-            </a>
-          </div>
-        </div>
-      </section>
 
       {/* CTA */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
