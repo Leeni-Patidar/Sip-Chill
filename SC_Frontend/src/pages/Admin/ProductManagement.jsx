@@ -41,35 +41,38 @@ const ProductManagement = ({ products, setProducts }) => {
     }
   }, []);
 
-  const handleInputChange = (e) => {
+  // Prevent input selection loss by using a stable handler
+  const handleInputChange = React.useCallback((e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-  };
+  }, []);
 
-  const handleIngredientsChange = (index, value) => {
-    const newIngredients = [...formData.ingredients];
-    newIngredients[index] = value;
-    setFormData(prev => ({ ...prev, ingredients: newIngredients }));
-  };
+  const handleIngredientsChange = React.useCallback((index, value) => {
+    setFormData(prev => {
+      const newIngredients = [...prev.ingredients];
+      newIngredients[index] = value;
+      return { ...prev, ingredients: newIngredients };
+    });
+  }, []);
 
-  const addIngredientField = () => {
-    setFormData(prev => ({ 
-      ...prev, 
-      ingredients: [...prev.ingredients, ''] 
+  const addIngredientField = React.useCallback(() => {
+    setFormData(prev => ({
+      ...prev,
+      ingredients: [...prev.ingredients, '']
     }));
-  };
+  }, []);
 
-  const removeIngredientField = (index) => {
-    setFormData(prev => ({ 
-      ...prev, 
-      ingredients: prev.ingredients.filter((_, i) => i !== index) 
+  const removeIngredientField = React.useCallback((index) => {
+    setFormData(prev => ({
+      ...prev,
+      ingredients: prev.ingredients.filter((_, i) => i !== index)
     }));
-  };
+  }, []);
 
-  const resetForm = () => {
+  const resetForm = React.useCallback(() => {
     setFormData({
       name: '',
       price: '',
@@ -80,7 +83,7 @@ const ProductManagement = ({ products, setProducts }) => {
       inStock: true,
       featured: false
     });
-  };
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -106,7 +109,7 @@ const ProductManagement = ({ products, setProducts }) => {
     resetForm();
   };
 
-  const handleEdit = (product) => {
+  const handleEdit = React.useCallback((product) => {
     setEditingProduct(product);
     setFormData({
       name: product.name,
@@ -119,7 +122,7 @@ const ProductManagement = ({ products, setProducts }) => {
       featured: product.featured || false
     });
     setIsEditModalOpen(true);
-  };
+  }, []);
 
   const handleDelete = (productId) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
@@ -127,7 +130,8 @@ const ProductManagement = ({ products, setProducts }) => {
     }
   };
 
-  const filteredProducts = products.filter(product => {
+  const safeProducts = Array.isArray(products) ? products : [];
+  const filteredProducts = safeProducts.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;

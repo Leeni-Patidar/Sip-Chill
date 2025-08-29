@@ -70,7 +70,8 @@ const OrderManagement = () => {
     }
   };
 
-  const filteredOrders = orders
+  const safeOrders = Array.isArray(orders) ? orders : [];
+  const filteredOrders = safeOrders
     .filter(order => {
       const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           (order.customerInfo?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -92,12 +93,12 @@ const OrderManagement = () => {
     });
 
   const orderStats = {
-    total: orders.length,
-    confirmed: orders.filter(o => o.status === 'confirmed').length,
-    preparing: orders.filter(o => o.status === 'preparing').length,
-    shipped: orders.filter(o => o.status === 'shipped').length,
-    delivered: orders.filter(o => o.status === 'delivered').length,
-    cancelled: orders.filter(o => o.status === 'cancelled').length,
+    total: safeOrders.length,
+    confirmed: safeOrders.filter(o => o.status === 'confirmed').length,
+    preparing: safeOrders.filter(o => o.status === 'preparing').length,
+    shipped: safeOrders.filter(o => o.status === 'shipped').length,
+    delivered: safeOrders.filter(o => o.status === 'delivered').length,
+    cancelled: safeOrders.filter(o => o.status === 'cancelled').length,
   };
 
   return (
@@ -319,3 +320,6 @@ const OrderManagement = () => {
 };
 
 export default OrderManagement;
+
+
+

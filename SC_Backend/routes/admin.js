@@ -245,6 +245,7 @@ router.get('/users', async (req, res) => {
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     // Get users
+    const paramsForUsers = [...params, parseInt(limit), offset];
     const users = await query(`
       SELECT 
         id,
@@ -259,7 +260,7 @@ router.get('/users', async (req, res) => {
       ${whereClause}
       ORDER BY created_at DESC
       LIMIT ? OFFSET ?
-    `, [...params, parseInt(limit), offset]);
+    `, paramsForUsers);
 
     // Get total count
     const countResult = await query(`
@@ -285,9 +286,14 @@ router.get('/users', async (req, res) => {
     });
   } catch (error) {
     console.error('Get admin users error:', error);
+    if (error && error.stack) {
+      console.error(error.stack);
+    }
     res.status(500).json({ 
       success: false, 
-      message: 'Server error getting users' 
+      message: 'Server error getting users',
+      error: error.message,
+      stack: error.stack
     });
   }
 });

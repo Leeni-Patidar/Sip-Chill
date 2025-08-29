@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:5002',
-  withCredentials: true
-});
+import api from '../../api/auth';
+import { useAuth } from '../../context/AuthContext';
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { isAuthenticated, user } = useAuth();
 
   useEffect(() => {
     const fetchUsers = async () => {
+      if (!isAuthenticated || !user || user.role !== 'admin') {
+        setError('Unauthorized: Admin access required');
+        setLoading(false);
+        return;
+      }
       try {
         setLoading(true);
         const res = await api.get('/api/admin/users');
@@ -24,14 +26,15 @@ const UserList = () => {
       }
     };
     fetchUsers();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, user]);
 
   if (loading) return <div>Loading users...</div>;
   if (error) return <div className="text-red-600">{error}</div>;
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">User List</h2>
+      <h2 className="text-xl font-bold mb-40 py-50">User List</h2>
       <table className="min-w-full border">
         <thead>
           <tr>
