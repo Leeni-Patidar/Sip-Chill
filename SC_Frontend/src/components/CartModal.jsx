@@ -48,10 +48,13 @@ const CartModal = ({ isOpen, onClose }) => {
                     <div className="flex-1">
                       <h3 className="font-medium text-gray-800">{item.name}</h3>
                       <p className="text-amber-700 font-medium">
-                        {typeof item.price === 'number' ? `$${item.price.toFixed(2)}` :
-                          !isNaN(parseFloat(item.price)) ? `$${parseFloat(item.price).toFixed(2)}` :
-                          `$${item.price}`}
+                        {typeof item.price === 'number'
+                          ? `₹${item.price.toFixed(2)}`
+                          : !isNaN(parseFloat(item.price))
+                            ? `₹${parseFloat(item.price).toFixed(2)}`
+                            : `₹${item.price}`}
                       </p>
+
                     </div>
                     <div className="flex items-center space-x-2">
                       <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-8 h-8 flex items-center justify-center bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-colors cursor-pointer">
@@ -71,7 +74,7 @@ const CartModal = ({ isOpen, onClose }) => {
               <div className="border-t border-gray-200 p-6 bg-gray-50">
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-lg font-semibold text-gray-800">Total:</span>
-                  <span className="text-xl font-bold text-amber-700">${total.toFixed(2)}</span>
+                  <span className="text-xl font-bold text-amber-700">₹{total.toFixed(2)}</span>
                 </div>
                 <a href="/cart" className="w-full bg-amber-700 text-white py-3 rounded-full font-medium hover:bg-amber-800 transition-colors flex items-center justify-center whitespace-nowrap" onClick={onClose}>
                   View Cart & Checkout

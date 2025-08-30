@@ -31,8 +31,8 @@ const calculateOrderTotals = (items) => {
 
 // @desc    Place order
 // @route   POST /api/orders
-// @access  Private/Public (optional auth)
-router.post('/', optionalAuth, [
+// @access  Private (only logged-in users)
+router.post('/', protect, [
   body('items').isArray({ min: 1 }).withMessage('At least one item is required'),
   body('items.*.product_id').isInt().withMessage('Valid product ID is required'),
   body('items.*.quantity').isInt({ min: 1 }).withMessage('Quantity must be at least 1'),
@@ -61,12 +61,10 @@ router.post('/', optionalAuth, [
     } = req.body;
 
     const userId = req.user?.id;
-    const sessionId = req.headers['x-session-id'];
-
-    if (!userId && !sessionId) {
-      return res.status(400).json({ 
+    if (!userId) {
+      return res.status(401).json({ 
         success: false, 
-        message: 'Authentication or session ID required' 
+        message: 'Authentication required' 
       });
     }
 
@@ -192,12 +190,8 @@ router.post('/', optionalAuth, [
         `, [coupon_code]);
       }
 
-      // Clear cart if user is logged in
-      if (userId) {
-        await connection.execute('DELETE FROM cart WHERE user_id = ?', [userId]);
-      } else if (sessionId) {
-        await connection.execute('DELETE FROM cart WHERE session_id = ?', [sessionId]);
-      }
+  // Clear cart for logged-in user
+  await connection.execute('DELETE FROM cart WHERE user_id = ?', [userId]);
 
       return { orderId, orderNumber };
     });
