@@ -170,14 +170,11 @@
 
 
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api/api';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
-// Create an Axios instance with a base URL
-const api = axios.create({
-  baseURL: 'http://localhost:5002/api', // Replace with your backend API base URL
-});
+
 
 const WishlistModal = ({ isOpen, onClose }) => {
   const [items, setItems] = useState([]);

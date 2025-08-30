@@ -259,12 +259,9 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import axios from 'axios';
+import api from '../api/api';
 
-// Create an Axios instance
-const api = axios.create({
-  baseURL: 'YOUR_BACKEND_API_URL', // Replace with your backend API base URL
-});
+
 
 const OrderConfirmation = () => {
   const { orderId } = useParams();

@@ -1,60 +1,49 @@
-import React, { useEffect, useState } from 'react';
-import api from '../../api/auth';
-import { useAuth } from '../../context/AuthContext';
+import React, { useEffect, useState } from "react";
+import { getAllUsers } from "../../api/admin";
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);  setProduct(response.data?.data || null);
   const [error, setError] = useState(null);
-  const { isAuthenticated, user } = useAuth();
 
   useEffect(() => {
     const fetchUsers = async () => {
-      if (!isAuthenticated || !user || user.role !== 'admin') {
-        setError('Unauthorized: Admin access required');
-        setLoading(false);
-        return;
-      }
       try {
-        setLoading(true);
-        const res = await api.get('/api/admin/users');
-        setUsers(res.data.data.users);
+        const { data } = await getAllUsers();
+        setUsers(data);
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to fetch users');
+        setError("Failed to fetch users");
       } finally {
         setLoading(false);
       }
     };
     fetchUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, user]);
+  }, []);
 
-  if (loading) return <div>Loading users...</div>;
-  if (error) return <div className="text-red-600">{error}</div>;
+  if (loading) return <p className="p-4">Loading users...</p>;
+  if (error) return <p className="p-4 text-red-500">{error}</p>;
 
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-40 py-50">User List</h2>
-      <table className="min-w-full border">
+    <div className="p-6">
+      <h2 className="text-xl font-bold mb-4">User List</h2>
+      <table className="table-auto w-full border-collapse border border-gray-300">
         <thead>
-          <tr>
+          <tr className="bg-gray-100">
             <th className="border px-2 py-1">ID</th>
+            <th className="border px-2 py-1">Name</th>
             <th className="border px-2 py-1">Email</th>
-            <th className="border px-2 py-1">First Name</th>
-            <th className="border px-2 py-1">Last Name</th>
-            <th className="border px-2 py-1">Role</th>
             <th className="border px-2 py-1">Active</th>
           </tr>
         </thead>
         <tbody>
-          {users.map(user => (
-            <tr key={user.id}>
-              <td className="border px-2 py-1">{user.id}</td>
+          {users.map((user) => (
+            <tr key={user._id} className="border">
+              <td className="border px-2 py-1">{user._id}</td>
+              <td className="border px-2 py-1">{user.name}</td>
               <td className="border px-2 py-1">{user.email}</td>
-              <td className="border px-2 py-1">{user.first_name}</td>
-              <td className="border px-2 py-1">{user.last_name}</td>
-              <td className="border px-2 py-1">{user.role}</td>
-              <td className="border px-2 py-1">{user.is_active ? 'Yes' : 'No'}</td>
+              <td className="border px-2 py-1">
+                {user.isActive ? "Yes" : "No"}
+              </td>
             </tr>
           ))}
         </tbody>

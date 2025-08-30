@@ -1,11 +1,9 @@
 import React, { useState, useEffect, Suspense } from 'react';
-import axios from 'axios';
+import api from '../api/api';
 import ProductCard from '../components/ProductCard';
 import { categories } from '../context/mock-data'; // Assuming categories are static or fetched elsewhere
 
-const api = axios.create({
-  baseURL: 'YOUR_BACKEND_API_URL', // **Replace with your backend API URL**
-});
+
 
 function ShopContent() {
   const [products, setProducts] = useState([]);
