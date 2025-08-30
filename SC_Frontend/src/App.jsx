@@ -22,7 +22,7 @@ import Register from './pages/Register';
 import ShippingAndDelivery from './pages/ShippingAndDelivery';
 import Shop from './pages/Shop';
 import TermsAndConditions from './pages/TermsAndConditions';
-import WishlistModal from './pages/WishlistModal';
+
 
 // Admin pages
 import AdminDashboard from './pages/Admin/AdminDashboard';
@@ -56,7 +56,6 @@ function App() {
           <Route path="/shipping-and-delivery" element={<ShippingAndDelivery />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-          <Route path="/wishlist" element={<WishlistModal/>} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminDashboard />} />

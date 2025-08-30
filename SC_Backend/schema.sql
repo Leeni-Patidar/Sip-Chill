@@ -247,7 +247,7 @@ CREATE TABLE `products` (
   `is_featured` tinyint(1) DEFAULT '0',
   `stock_quantity` int DEFAULT '0',
   `allergens` text COLLATE utf8mb4_general_ci,
-  `nutritional_info` json DEFAULT NULL,
+  `reviews` json DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),

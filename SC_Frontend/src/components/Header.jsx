@@ -2,20 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
-import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import CartModal from './CartModal';
-import WishlistModal from "../pages/WishlistModal";
 
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const { itemCount } = useCart();
-  const { itemCount: wishlistCount } = useWishlist();
   const { user, isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
@@ -28,9 +24,8 @@ const Header = () => {
 
   return (
     <>
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white/95 backdrop-blur-sm shadow-lg' : 'bg-white'
-      }`}>
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-sm shadow-lg' : 'bg-white'
+        }`}>
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             {/* Logo */}
@@ -58,11 +53,11 @@ const Header = () => {
                     to="/profile"
                     className="flex items-center space-x-2 text-gray-700 hover:text-amber-700 transition-colors"
                   >
-                    <img
-                      src={user?.avatar}
-                      alt={user?.name}
-                      className="w-8 h-8 rounded-full border-2 border-amber-200"
-                    />
+                    <div className="w-8 h-8 flex items-center justify-center rounded-full border-2 border-amber-200 bg-amber-100 text-amber-800 font-bold">
+                      {user?.first_name?.charAt(0).toUpperCase()}
+                      {user?.last_name?.charAt(0).toUpperCase()}
+                    </div>
+
                     <span className="font-medium">{user?.name}</span>
                   </Link>
                   {user?.role === 'admin' && (
@@ -90,19 +85,6 @@ const Header = () => {
                   </Link>
                 </div>
               )}
-
-              {/* Wishlist */}
-              <button
-                onClick={() => setIsWishlistOpen(true)}
-                className="relative p-2 text-gray-700 hover:text-amber-700 transition-colors cursor-pointer"
-              >
-                <i className="ri-heart-line text-xl"></i>
-                {wishlistCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {wishlistCount}
-                  </span>
-                )}
-              </button>
 
               {/* Cart */}
               <button
@@ -135,7 +117,7 @@ const Header = () => {
                 <a href="/shop" className="text-gray-700 hover:text-amber-700 font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Shop</a>
                 <a href="/menu" className="text-gray-700 hover:text-amber-700 font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Menu</a>
                 <a href="/contact" className="text-gray-700 hover:text-amber-700 font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Contact</a>
-                
+
                 {/* Mobile Auth Links */}
                 <div className="border-t border-gray-200 pt-4 mt-4">
                   {isAuthenticated ? (
@@ -198,9 +180,7 @@ const Header = () => {
 
       {/* Cart Modal */}
       <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
-      
-      {/* Wishlist Modal */}
-      <WishlistModal isOpen={isWishlistOpen} onClose={() => setIsWishlistOpen(false)} />
+
     </>
   );
 };

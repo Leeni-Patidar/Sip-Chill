@@ -3,7 +3,7 @@ import { getAllUsers } from "../../api/admin";
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);  setProduct(response.data?.data || null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {

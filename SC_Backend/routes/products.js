@@ -7,14 +7,14 @@ const { optionalAuth, protect, authorize } = require('../middleware/auth');
 // @access  Admin
 router.post('/', protect, authorize('admin'), async (req, res) => {
   try {
-    const { name, description, price, image_url, category_id, is_featured, stock_quantity, allergens, nutritional_info } = req.body;
+    const { name, description, price, image_url, category_id, is_featured, stock_quantity, allergens, reviews } = req.body;
     if (!name || !price || !category_id) {
       return res.status(400).json({ success: false, message: 'Name, price, and category are required.' });
     }
     const result = await query(
-      `INSERT INTO products (name, description, price, image_url, category_id, is_featured, stock_quantity, allergens, nutritional_info, is_available)
+      `INSERT INTO products (name, description, price, image_url, category_id, is_featured, stock_quantity, allergens, reviews, is_available)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)`,
-      [name, description, price, image_url, category_id, is_featured || false, stock_quantity || 0, allergens, nutritional_info]
+      [name, description, price, image_url, category_id, is_featured || false, stock_quantity || 0, allergens, reviews]
     );
     res.status(201).json({ success: true, productId: result.insertId });
   } catch (error) {
@@ -28,11 +28,11 @@ router.post('/', protect, authorize('admin'), async (req, res) => {
 // @access  Admin
 router.put('/:id', protect, authorize('admin'), async (req, res) => {
   try {
-    const { name, description, price, image_url, category_id, is_featured, stock_quantity, allergens, nutritional_info, is_available } = req.body;
+    const { name, description, price, image_url, category_id, is_featured, stock_quantity, allergens, reviews, is_available } = req.body;
     const { id } = req.params;
     const result = await query(
-      `UPDATE products SET name=?, description=?, price=?, image_url=?, category_id=?, is_featured=?, stock_quantity=?, allergens=?, nutritional_info=?, is_available=? WHERE id=?`,
-      [name, description, price, image_url, category_id, is_featured, stock_quantity, allergens, nutritional_info, is_available, id]
+      `UPDATE products SET name=?, description=?, price=?, image_url=?, category_id=?, is_featured=?, stock_quantity=?, allergens=?, reviews=?, is_available=? WHERE id=?`,
+      [name, description, price, image_url, category_id, is_featured, stock_quantity, allergens, reviews, is_available, id]
     );
     res.json({ success: true, affectedRows: result.affectedRows });
   } catch (error) {
@@ -131,7 +131,7 @@ router.get('/', optionalAuth, async (req, res) => {
         p.is_featured,
         p.stock_quantity,
         p.allergens,
-        p.nutritional_info,
+        p.reviews,
         p.created_at,
         c.id as category_id,
         c.name as category_name
@@ -227,7 +227,7 @@ router.get('/:id', optionalAuth, async (req, res) => {
         p.is_featured,
         p.stock_quantity,
         p.allergens,
-        p.nutritional_info,
+        p.reviews,
         p.created_at,
         c.id as category_id,
         c.name as category_name,

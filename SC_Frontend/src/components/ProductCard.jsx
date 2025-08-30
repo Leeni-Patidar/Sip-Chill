@@ -38,6 +38,20 @@ const ProductCard = ({ product }) => {
     });
   };
 
+  // Parse reviews JSON string if needed
+  let reviewData = { rating: 0, reviews: 0 };
+  if (product.reviews) {
+    if (typeof product.reviews === 'string') {
+      try {
+        reviewData = JSON.parse(product.reviews);
+      } catch {
+        reviewData = { rating: 0, reviews: 0 };
+      }
+    } else if (typeof product.reviews === 'object') {
+      reviewData = product.reviews;
+    }
+  }
+
   return (
     <div ref={cardRef} className="group">
       <a href={`/product/${product.id}`}>
@@ -60,14 +74,7 @@ const ProductCard = ({ product }) => {
                 </span>
               )}
             </div>
-            <div className="absolute top-4 right-4 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <button className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-600 hover:text-red-500 transition-colors cursor-pointer">
-                <i className="ri-heart-line text-lg"></i>
-              </button>
-              <button className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-600 hover:text-amber-700 transition-colors cursor-pointer">
-                <i className="ri-eye-line text-lg"></i>
-              </button>
-            </div>
+            
             <button
               onClick={handleAddToCart}
               className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-amber-700 text-white px-6 py-2 rounded-full font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-amber-800 whitespace-nowrap cursor-pointer"
@@ -82,10 +89,10 @@ const ProductCard = ({ product }) => {
             <div className="flex items-center space-x-1 mb-3">
               <div className="flex text-yellow-400">
                 {[...Array(5)].map((_, i) => (
-                  <i key={i} className={`ri-star-${i < Math.floor(product.rating) ? 'fill' : 'line'} text-sm`}></i>
+                  <i key={i} className={`ri-star-${i < Math.floor(reviewData.rating) ? 'fill' : 'line'} text-sm`}></i>
                 ))}
               </div>
-              <span className="text-sm text-gray-500">({product.reviews})</span>
+              <span className="text-sm text-gray-500">({reviewData.reviews} reviews)</span>
             </div>
             <div className="flex items-center space-x-2">
               <span className="text-lg font-bold text-amber-700">₹{product.price}</span>
@@ -94,7 +101,7 @@ const ProductCard = ({ product }) => {
               )}
             </div>
             <div className="mt-2">
-              {product.inStock ? (
+              {product.stock_quantity ? (
                 <span className="text-green-600 text-sm font-medium">In Stock</span>
               ) : (
                 <span className="text-red-500 text-sm font-medium">Out of Stock</span>

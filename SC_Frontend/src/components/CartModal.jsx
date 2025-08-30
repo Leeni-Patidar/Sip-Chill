@@ -44,10 +44,14 @@ const CartModal = ({ isOpen, onClose }) => {
               <div className="p-6 space-y-4">
                 {items.map((item) => (
                   <div key={item.id} className="flex items-center space-x-4 bg-gray-50 rounded-lg p-4">
-                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-lg" />
+                    <img src={item.image || item.image_url} alt={item.name} className="w-16 h-16 object-cover rounded-lg" />
                     <div className="flex-1">
                       <h3 className="font-medium text-gray-800">{item.name}</h3>
-                      <p className="text-amber-700 font-medium">${item.price.toFixed(2)}</p>
+                      <p className="text-amber-700 font-medium">
+                        {typeof item.price === 'number' ? `$${item.price.toFixed(2)}` :
+                          !isNaN(parseFloat(item.price)) ? `$${parseFloat(item.price).toFixed(2)}` :
+                          `$${item.price}`}
+                      </p>
                     </div>
                     <div className="flex items-center space-x-2">
                       <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-8 h-8 flex items-center justify-center bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-colors cursor-pointer">

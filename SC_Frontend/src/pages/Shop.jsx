@@ -3,8 +3,6 @@ import api from '../api/api';
 import ProductCard from '../components/ProductCard';
 import { categories } from '../context/mock-data'; // Assuming categories are static or fetched elsewhere
 
-
-
 function ShopContent() {
   const [products, setProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -19,10 +17,9 @@ function ShopContent() {
       try {
         setLoading(true);
         const response = await api.get('/api/products');
-  // If backend returns { success, data: { products, ... } }
-  const productsArr = response.data?.data?.products || [];
-  setProducts(productsArr);
-  setFilteredProducts(productsArr); // Initialize filtered products with all products
+        const productsArr = response.data?.data?.products || [];
+        setProducts(productsArr);
+        setFilteredProducts(productsArr);
       } catch (err) {
         setError('Failed to fetch products.');
         console.error('Error fetching products:', err);
@@ -32,12 +29,11 @@ function ShopContent() {
     };
 
     fetchProducts();
-  }, []); // Fetch products only on component mount
+  }, []);
 
   useEffect(() => {
-    let filtered = [...products]; // Start with the full list of fetched products
+    let filtered = [...products];
 
-    // Filter by category
     if (selectedCategory !== 'all') {
       const category = categories.find(cat => cat.id === selectedCategory);
       if (category) {
@@ -45,7 +41,6 @@ function ShopContent() {
       }
     }
 
-    // Filter by price
     if (priceRange !== 'all') {
       switch (priceRange) {
         case 'under-150':
@@ -62,7 +57,6 @@ function ShopContent() {
       }
     }
 
-    // Sort
     switch (sortBy) {
       case 'price-low':
         filtered.sort((a, b) => a.price - b.price);
@@ -80,11 +74,10 @@ function ShopContent() {
     }
 
     setFilteredProducts(filtered);
-  }, [selectedCategory, sortBy, priceRange, products]); // Re-filter when products state changes
+  }, [selectedCategory, sortBy, priceRange, products]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
-
       {/* Hero Section */}
       <section className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
@@ -168,12 +161,12 @@ function ShopContent() {
               <p className="text-gray-500">Please try again later.</p>
             </div>
           ) : filteredProducts.length === 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-               <div className="md:col-span-4 text-center py-16">
-                 <i className="ri-search-line text-6xl text-gray-300 mb-4"></i>
-                 <h3 className="text-xl font-medium text-gray-600 mb-2">No products found</h3>
-                 <p className="text-gray-500">Try adjusting your filters to see more results</p>
-               </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="md:col-span-3 text-center py-16">
+                <i className="ri-search-line text-6xl text-gray-300 mb-4"></i>
+                <h3 className="text-xl font-medium text-gray-600 mb-2">No products found</h3>
+                <p className="text-gray-500">Try adjusting your filters to see more results</p>
+              </div>
             </div>
           ) : (
             <>
@@ -182,7 +175,7 @@ function ShopContent() {
                   Showing {filteredProducts.length} of {products.length} products
                 </p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
@@ -191,7 +184,6 @@ function ShopContent() {
           )}
         </div>
       </section>
-
     </div>
   );
 }
