@@ -1,7 +1,9 @@
 
 const express = require('express');
 const { body, validationResult } = require('express-validator');
+
 const { query } = require('../config/database');
+const { sendContactNotification } = require('./email');
 
 const router = express.Router();
 
@@ -31,8 +33,14 @@ router.post('/', [
       VALUES (?, ?, ?, ?)
     `, [name, email, subject, message]);
 
-    // TODO: Send email notification to admin (implement with nodemailer)
-    // sendContactNotification({ name, email, subject, message });
+
+    // Send email notification to admin
+    try {
+      await sendContactNotification({ name, email, subject, message });
+    } catch (emailError) {
+      console.error('Failed to send contact notification email:', emailError);
+      // Don't fail the request if email fails, just log
+    }
 
     res.status(201).json({
       success: true,

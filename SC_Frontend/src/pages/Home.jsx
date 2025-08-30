@@ -1,13 +1,27 @@
-'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Hero from '../components/Hero';
 import CategoryCard from '../components/CategoryCard';
 import ProductCard from '../components/ProductCard';
-import { categories, products } from '../context/mock-data';
+import { getAllCategories } from '../api/categories';
+import { getAllProducts } from '../api/products';
 
 export default function Home() {
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+
   useEffect(() => {
+    // Fetch Categories
+    getAllCategories()
+      .then((res) => setCategories(res.data.data))
+      .catch((err) => console.error('Error fetching categories:', err));
+
+    // Fetch Products
+    getAllProducts()
+      .then((res) => setProducts(res.data.data.products))
+      .catch((err) => console.error('Error fetching products:', err));
+
+    // GSAP animations
     if (typeof window !== 'undefined') {
       import('gsap').then(({ gsap }) => {
         import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
@@ -17,11 +31,10 @@ export default function Home() {
     }
   }, []);
 
-  const featuredProducts = products.filter(product => product.featured);
+  const featuredProducts = products.filter((product) => product.is_featured === 1);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
-   
       <Hero />
 
       {/* Categories Section */}
@@ -35,7 +48,7 @@ export default function Home() {
               From premium coffee to delicious pastries, discover our carefully curated selection
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {categories.map((category) => (
               <CategoryCard key={category.id} category={category} />
@@ -74,7 +87,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Milkshakes */}
+      {/* Milkshakes Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -120,7 +133,6 @@ export default function Home() {
         </div>
       </section>
 
-
       {/* CTA */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
@@ -151,7 +163,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }

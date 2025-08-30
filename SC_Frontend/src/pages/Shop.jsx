@@ -1,11 +1,14 @@
 import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../api/api';
 import ProductCard from '../components/ProductCard';
 import { categories } from '../context/mock-data'; // Assuming categories are static or fetched elsewhere
 
 function ShopContent() {
+  const [searchParams] = useSearchParams();
+  const urlCategory = searchParams.get('category');
   const [products, setProducts] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState(urlCategory || 'all');
   const [sortBy, setSortBy] = useState('name');
   const [priceRange, setPriceRange] = useState('all');
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -34,11 +37,10 @@ function ShopContent() {
   useEffect(() => {
     let filtered = [...products];
 
+    // Filter by category_id from URL or dropdown
     if (selectedCategory !== 'all') {
-      const category = categories.find(cat => cat.id === selectedCategory);
-      if (category) {
-        filtered = filtered.filter(product => product.category === category.name);
-      }
+      const categoryIdNum = Number(selectedCategory);
+      filtered = filtered.filter(product => product.category_id === categoryIdNum);
     }
 
     if (priceRange !== 'all') {
