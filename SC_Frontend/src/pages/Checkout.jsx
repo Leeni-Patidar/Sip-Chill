@@ -3,12 +3,13 @@ import { useCart } from "../context/CartContext";
 import { placeOrder } from "../api/orders";
 import { getUserProfile } from "../api/users";
 import { getCoupons } from "../api/coupons";
+import { createRazorpayOrder } from "../api/payment";
 
 const Checkout = () => {
   const { items: cartItems = [], clearCart } = useCart();
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [contactPhone, setContactPhone] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [paymentMethod, setPaymentMethod] = useState("card");
   const [specialInstructions, setSpecialInstructions] = useState("");
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0);
@@ -16,97 +17,133 @@ const Checkout = () => {
   const [loading, setLoading] = useState(false);
 
   // Totals
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-  const tax = +(subtotal * 0.08).toFixed(2);
+  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const taxAmount = +(subtotal * 0.08).toFixed(2);
   const deliveryFee = subtotal >= 500 ? 0 : 49;
-  const totalBeforeDiscount = +(subtotal + tax + deliveryFee).toFixed(2);
+  const totalBeforeDiscount = +(subtotal + taxAmount + deliveryFee).toFixed(2);
   const finalTotal = +(totalBeforeDiscount - discount).toFixed(2);
 
-  // Fetch profile data (address + phone)
+  // Fetch profile
   useEffect(() => {
-    async function fetchProfile() {
+    const fetchProfile = async () => {
       try {
         const res = await getUserProfile();
-        if (res.success) {
-          setDeliveryAddress(res.data.address || "");
-          setContactPhone(res.data.phone || "");
+        if (res.data?.success) {
+          setDeliveryAddress(res.data.data.address || "");
+          setContactPhone(res.data.data.phone || "");
         }
       } catch (err) {
         console.error("Profile fetch error:", err);
       }
-    }
+    };
     fetchProfile();
   }, []);
 
-  // Fetch coupons from DB
+  // Fetch coupons
   useEffect(() => {
-    async function fetchCoupons() {
+    const fetchCoupons = async () => {
       try {
         const res = await getCoupons();
-        if (res.success) {
-          setCoupons(res.data);
-        }
+        if (res.data?.success) setCoupons(res.data.data || []);
       } catch (err) {
         console.error("Coupons fetch error:", err);
       }
-    }
+    };
     fetchCoupons();
   }, []);
 
-  // Apply coupon discount
   const handleCouponSelect = (code) => {
     setCouponCode(code);
-
-    const selected = coupons.find((c) => c.code === code);
+    const selected = coupons.find(c => c.code === code);
     if (selected) {
-      if (selected.discount_type === "percentage") {
-        setDiscount((subtotal * selected.discount_value) / 100);
-      } else {
-        setDiscount(selected.discount_value);
-      }
-    } else {
-      setDiscount(0);
-    }
+      setDiscount(selected.discount_type === "percentage"
+        ? +(subtotal * selected.discount_value / 100).toFixed(2)
+        : +selected.discount_value.toFixed(2)
+      );
+    } else setDiscount(0);
   };
 
-  // Place order
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (document.getElementById("razorpay-script")) return resolve(true);
+      const script = document.createElement("script");
+      script.id = "razorpay-script";
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const handlePlaceOrder = async () => {
     if (cartItems.length === 0) return alert("Cart is empty");
-
     setLoading(true);
-    try {
-      const orderData = {
-        items: cartItems.map((i) => ({
-          product_id: i.id,
-          quantity: i.quantity,
-          special_instructions: i.special_instructions || "",
-          product_name: i.name,
-          product_price: i.price,
-        })),
-        delivery_address: deliveryAddress,
-        contact_phone: contactPhone,
-        payment_method: paymentMethod,
-        special_instructions: specialInstructions,
-        coupon_code: couponCode || null,
-        tax_amount: tax,
-        delivery_fee: deliveryFee,
-        discount_amount: discount,
-        total_amount: finalTotal,
-      };
 
-      const res = await placeOrder(orderData);
-      if (res.success) {
-        alert("Order placed! Order No: " + res.data.order_number);
-        clearCart();
+    const orderData = {
+      cartItems: cartItems.map(i => ({
+        product_id: i.id,
+        name: i.name,
+        price: i.price,
+        quantity: i.quantity,
+        special_instructions: i.special_instructions || "",
+      })),
+      totalAmount: finalTotal,
+      taxAmount,
+      deliveryFee,
+      paymentMethod,
+      deliveryAddress,
+      contactPhone,
+      specialInstructions,
+      couponCode: couponCode || null,
+    };
+
+    try {
+      if (paymentMethod === "online") {
+        const amountInPaise = Math.round(finalTotal * 100); // FIX: convert to integer paise
+        const res = await createRazorpayOrder(amountInPaise);
+        if (!res.success) throw new Error(res.message || "Failed to create Razorpay order");
+
+        const isScriptLoaded = await loadRazorpayScript();
+        if (!isScriptLoaded) throw new Error("Razorpay SDK failed to load");
+
+        const options = {
+          key: "rzp_test_1FrE9xUhkujHMF",
+          amount: res.amount,
+          currency: "INR",
+          name: "Sip-Chill",
+          description: "Order Payment",
+          order_id: res.id,
+          handler: async function (response) {
+            orderData.razorpayPaymentId = response.razorpay_payment_id;
+            orderData.razorpayOrderId = response.razorpay_order_id;
+            orderData.razorpaySignature = response.razorpay_signature;
+
+            const orderRes = await placeOrder(orderData);
+            if (orderRes.success) {
+              alert(`Order placed! Order No: ${orderRes.orderNumber}`);
+              clearCart();
+            } else {
+              alert(orderRes.message || "Failed to place order");
+            }
+          },
+          prefill: { contact: contactPhone },
+          theme: { color: "#F59E0B" },
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.open();
       } else {
-        alert(res.message || "Failed to place order");
+        const res = await placeOrder(orderData);
+        if (res.success) {
+          alert(`Order placed! Order No: ${res.orderNumber}`);
+          clearCart();
+        } else {
+          alert(res.message || "Failed to place order");
+        }
       }
     } catch (err) {
-      console.error("Place order error:", err);
-      alert("Error placing order");
+      console.error(err);
+      alert(err.message || "Payment failed");
     } finally {
       setLoading(false);
     }
@@ -118,13 +155,10 @@ const Checkout = () => {
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-2xl font-semibold text-gray-800">Checkout</h2>
         </div>
-
         <div className="p-6 space-y-6">
           {/* Delivery Address */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Delivery Address
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Address</label>
             <textarea
               value={deliveryAddress}
               onChange={(e) => setDeliveryAddress(e.target.value)}
@@ -136,9 +170,7 @@ const Checkout = () => {
 
           {/* Contact Phone */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Contact Phone
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Contact Phone</label>
             <input
               type="text"
               value={contactPhone}
@@ -150,25 +182,21 @@ const Checkout = () => {
 
           {/* Payment Method */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Payment Method
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
             <select
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value)}
               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-amber-600 focus:outline-none"
             >
-              {/* <option value="cash">Cash</option> */}
               <option value="card">Card</option>
               <option value="online">Online</option>
+              <option value="cash">Cash</option>
             </select>
           </div>
 
           {/* Special Instructions */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Special Instructions
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Special Instructions</label>
             <textarea
               value={specialInstructions}
               onChange={(e) => setSpecialInstructions(e.target.value)}
@@ -180,21 +208,16 @@ const Checkout = () => {
 
           {/* Coupon Dropdown */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Apply Coupon
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Apply Coupon</label>
             <select
               value={couponCode}
               onChange={(e) => handleCouponSelect(e.target.value)}
               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-amber-600 focus:outline-none"
             >
               <option value="">Select a coupon</option>
-              {coupons.map((c) => (
+              {coupons.map(c => (
                 <option key={c.id} value={c.code}>
-                  {c.code} —{" "}
-                  {c.discount_type === "percentage"
-                    ? `${c.discount_value}% off`
-                    : `₹${c.discount_value} off`}
+                  {c.code} — {c.discount_type === "percentage" ? `${c.discount_value}% off` : `₹${c.discount_value} off`}
                 </option>
               ))}
             </select>
@@ -202,26 +225,11 @@ const Checkout = () => {
 
           {/* Order Summary */}
           <div className="border-t pt-4 space-y-2 text-gray-700">
-            <p className="flex justify-between">
-              <span>Subtotal:</span>
-              <span>₹{subtotal.toFixed(2)}</span>
-            </p>
-            <p className="flex justify-between">
-              <span>Tax:</span>
-              <span>₹{tax.toFixed(2)}</span>
-            </p>
-            <p className="flex justify-between">
-              <span>Delivery Fee:</span>
-              <span>₹{deliveryFee.toFixed(2)}</span>
-            </p>
-            <p className="flex justify-between text-green-600">
-              <span>Discount:</span>
-              <span>- ₹{discount.toFixed(2)}</span>
-            </p>
-            <p className="flex justify-between font-semibold text-lg text-gray-900">
-              <span>Total:</span>
-              <span>₹{finalTotal.toFixed(2)}</span>
-            </p>
+            <p className="flex justify-between"><span>Subtotal:</span><span>₹{subtotal.toFixed(2)}</span></p>
+            <p className="flex justify-between"><span>Tax:</span><span>₹{taxAmount.toFixed(2)}</span></p>
+            <p className="flex justify-between"><span>Delivery Fee:</span><span>₹{deliveryFee.toFixed(2)}</span></p>
+            <p className="flex justify-between text-green-600"><span>Discount:</span><span>- ₹{discount.toFixed(2)}</span></p>
+            <p className="flex justify-between font-semibold text-lg text-gray-900"><span>Total:</span><span>₹{finalTotal.toFixed(2)}</span></p>
           </div>
 
           {/* Place Order */}
