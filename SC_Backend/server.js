@@ -10,6 +10,7 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const productRoutes = require('./routes/products');
 const categoryRoutes = require('./routes/categories');
+const couponRoutes = require('./routes/coupons');
 const cartRoutes = require('./routes/cart');
 const orderRoutes = require('./routes/orders');
 const contactRoutes = require('./routes/contact');
@@ -66,6 +67,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/coupons', couponRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

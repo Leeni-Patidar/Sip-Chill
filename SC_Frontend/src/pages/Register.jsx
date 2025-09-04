@@ -54,6 +54,12 @@ const Register = () => {
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Email is invalid";
     }
+    if (!formData.address.trim()) {
+      newErrors.address = "Address is required";
+    }
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    }
     if (!formData.password) {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
@@ -209,7 +215,7 @@ const Register = () => {
                 htmlFor="address"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Address (optional)
+                Address
               </label>
               <input
                 type="text"
@@ -217,9 +223,14 @@ const Register = () => {
                 name="address"
                 value={formData.address}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 border-gray-300"
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 ${
+                  errors.address ? "border-red-300" : "border-gray-300"
+                }`}
                 placeholder="Enter your address"
               />
+              {errors.address && (
+                <p className="mt-1 text-sm text-red-600">{errors.address}</p>
+              )}
             </div>
 
             {/* Phone */}
@@ -228,7 +239,7 @@ const Register = () => {
                 htmlFor="phone"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Phone Number (optional)
+                Phone Number
               </label>
               <div className="relative">
                 <input
@@ -237,11 +248,16 @@ const Register = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                  className={`w-full px-4 py-3 pl-11 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors ${
+                    errors.phone ? "border-red-300" : "border-gray-300"
+                  }`}
                   placeholder="Enter your phone number"
                 />
                 <i className="ri-phone-line absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
               </div>
+              {errors.phone && (
+                <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+              )}
             </div>
 
             {/* Password */}
