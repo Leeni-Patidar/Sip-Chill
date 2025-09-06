@@ -12,9 +12,7 @@ router.use(authorize('admin'));
 // Helper to ensure params are always an array
 const safeParams = (params) => (Array.isArray(params) ? params : []);
 
-// @desc    Get admin dashboard stats
-// @route   GET /api/admin/dashboard
-// @access  Private (Admin)
+// -------------------- DASHBOARD -------------------- //
 router.get('/dashboard', async (req, res) => {
   try {
     const totalOrders = await query('SELECT COUNT(*) as count FROM orders');
@@ -41,6 +39,18 @@ router.get('/dashboard', async (req, res) => {
       LIMIT 10
     `);
 
+    const recentUsers = await query(`
+      SELECT 
+        id,
+        first_name,
+        last_name,
+        email,
+        created_at
+      FROM users
+      ORDER BY created_at DESC
+      LIMIT 5
+    `);
+
     const lowStockProducts = await query(`
       SELECT id, name, stock_quantity
       FROM products
@@ -55,6 +65,13 @@ router.get('/dashboard', async (req, res) => {
       GROUP BY status
     `);
 
+    // Format recent users with name and createdAt
+    const formattedRecentUsers = recentUsers.map(u => ({
+      ...u,
+      name: `${u.first_name || ''} ${u.last_name || ''}`.trim(),
+      createdAt: u.created_at,
+    }));
+
     res.json({
       success: true,
       data: {
@@ -65,6 +82,7 @@ router.get('/dashboard', async (req, res) => {
           total_products: totalProducts[0].count,
         },
         recent_orders: recentOrders,
+        recent_users: formattedRecentUsers,
         low_stock_products: lowStockProducts,
         orders_by_status: ordersByStatus,
       },
@@ -77,9 +95,7 @@ router.get('/dashboard', async (req, res) => {
   }
 });
 
-// @desc    Get all orders (admin)
-// @route   GET /api/admin/orders
-// @access  Private (Admin)
+// -------------------- ORDERS -------------------- //
 router.get('/orders', async (req, res) => {
   try {
     const { page = 1, limit = 20, status, payment_status, search } = req.query;
@@ -100,20 +116,12 @@ router.get('/orders', async (req, res) => {
       conditions.push(
         '(o.order_number LIKE ? OR u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ?)'
       );
-      params.push(
-        `%${search}%`,
-        `%${search}%`,
-        `%${search}%`,
-        `%${search}%`
-      );
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
     }
 
-    const whereClause =
-      conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
-    // Get orders
-    const orders = await query(
-      `
+    const orders = await query(`
       SELECT 
         o.id,
         o.order_number,
@@ -132,21 +140,15 @@ router.get('/orders', async (req, res) => {
       LEFT JOIN users u ON o.user_id = u.id
       ${whereClause}
       ORDER BY o.created_at DESC
-      LIMIT ? OFFSET ?
-    `,
-      [...params, parseInt(limit), offset]
-    );
+      LIMIT ${parseInt(limit)} OFFSET ${offset}
+    `);
 
-    // Get total count
-    const countResult = await query(
-      `
+    const countResult = await query(`
       SELECT COUNT(*) as total
       FROM orders o
       LEFT JOIN users u ON o.user_id = u.id
       ${whereClause}
-    `,
-      safeParams(params)
-    );
+    `, safeParams(params));
 
     const total = countResult[0]?.total || 0;
     const totalPages = Math.ceil(total / parseInt(limit));
@@ -171,19 +173,11 @@ router.get('/orders', async (req, res) => {
   }
 });
 
-// @desc    Update order status
 router.put(
   '/orders/:id/status',
   [
     body('status')
-      .isIn([
-        'pending',
-        'confirmed',
-        'preparing',
-        'ready',
-        'delivered',
-        'cancelled',
-      ])
+      .isIn(['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'])
       .withMessage('Valid status is required'),
   ],
   async (req, res) => {
@@ -198,9 +192,7 @@ router.put(
 
       const orders = await query('SELECT id FROM orders WHERE id = ?', [id]);
       if (orders.length === 0) {
-        return res
-          .status(404)
-          .json({ success: false, message: 'Order not found' });
+        return res.status(404).json({ success: false, message: 'Order not found' });
       }
 
       await query('UPDATE orders SET status = ? WHERE id = ?', [status, id]);
@@ -218,7 +210,7 @@ router.put(
   }
 );
 
-// @desc    Get all users (admin)
+// -------------------- USERS -------------------- //
 router.get('/users', async (req, res) => {
   try {
     const { page = 1, limit = 20, role, search } = req.query;
@@ -232,17 +224,13 @@ router.get('/users', async (req, res) => {
       params.push(role);
     }
     if (search) {
-      conditions.push(
-        '(first_name LIKE ? OR last_name LIKE ? OR email LIKE ?)'
-      );
+      conditions.push('(first_name LIKE ? OR last_name LIKE ? OR email LIKE ?)');
       params.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
 
-    const whereClause =
-      conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
-    const users = await query(
-      `
+    const users = await query(`
       SELECT 
         id,
         email,
@@ -255,27 +243,29 @@ router.get('/users', async (req, res) => {
       FROM users
       ${whereClause}
       ORDER BY created_at DESC
-      LIMIT ? OFFSET ?
-    `,
-      [...params, parseInt(limit), offset]
-    );
+      LIMIT ${parseInt(limit)} OFFSET ${offset}
+    `);
 
-    const countResult = await query(
-      `
+    const countResult = await query(`
       SELECT COUNT(*) as total
       FROM users
       ${whereClause}
-    `,
-      safeParams(params)
-    );
+    `, safeParams(params));
 
     const total = countResult[0]?.total || 0;
     const totalPages = Math.ceil(total / parseInt(limit));
 
+    // Add name and createdAt
+    const formattedUsers = users.map(u => ({
+      ...u,
+      name: `${u.first_name || ''} ${u.last_name || ''}`.trim(),
+      createdAt: u.created_at,
+    }));
+
     res.json({
       success: true,
       data: {
-        users,
+        users: formattedUsers,
         pagination: {
           current_page: parseInt(page),
           total_pages: totalPages,
@@ -294,7 +284,6 @@ router.get('/users', async (req, res) => {
   }
 });
 
-// @desc    Update user status
 router.put(
   '/users/:id/status',
   [body('is_active').isBoolean().withMessage('is_active must be a boolean')],
@@ -308,15 +297,9 @@ router.put(
       const { id } = req.params;
       const { is_active } = req.body;
 
-      await query('UPDATE users SET is_active = ? WHERE id = ?', [
-        is_active,
-        id,
-      ]);
+      await query('UPDATE users SET is_active = ? WHERE id = ?', [is_active, id]);
 
-      res.json({
-        success: true,
-        message: 'User status updated successfully',
-      });
+      res.json({ success: true, message: 'User status updated successfully' });
     } catch (error) {
       console.error('Update user status error:', error);
       res
@@ -326,7 +309,7 @@ router.put(
   }
 );
 
-// @desc    Get contact messages
+// -------------------- CONTACT MESSAGES -------------------- //
 router.get('/contact-messages', async (req, res) => {
   try {
     const { page = 1, limit = 20, is_read } = req.query;
@@ -340,35 +323,21 @@ router.get('/contact-messages', async (req, res) => {
       params.push(is_read === 'true');
     }
 
-    const whereClause =
-      conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
-    const messages = await query(
-      `
-      SELECT 
-        id,
-        name,
-        email,
-        subject,
-        message,
-        is_read,
-        created_at
+    const messages = await query(`
+      SELECT id, name, email, subject, message, is_read, created_at
       FROM contact_messages
       ${whereClause}
       ORDER BY created_at DESC
-      LIMIT ? OFFSET ?
-    `,
-      [...params, parseInt(limit), offset]
-    );
+      LIMIT ${parseInt(limit)} OFFSET ${offset}
+    `);
 
-    const countResult = await query(
-      `
+    const countResult = await query(`
       SELECT COUNT(*) as total
       FROM contact_messages
       ${whereClause}
-    `,
-      safeParams(params)
-    );
+    `, safeParams(params));
 
     const total = countResult[0]?.total || 0;
     const totalPages = Math.ceil(total / parseInt(limit));
@@ -387,31 +356,22 @@ router.get('/contact-messages', async (req, res) => {
     });
   } catch (error) {
     console.error('Get contact messages error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error getting contact messages',
-    });
+    res.status(500).json({ success: false, message: 'Server error getting contact messages' });
   }
 });
 
-// @desc    Mark contact message as read
 router.put('/contact-messages/:id/read', async (req, res) => {
   try {
     const { id } = req.params;
-    await query('UPDATE contact_messages SET is_read = TRUE WHERE id = ?', [
-      id,
-    ]);
+    await query('UPDATE contact_messages SET is_read = TRUE WHERE id = ?', [id]);
     res.json({ success: true, message: 'Message marked as read' });
   } catch (error) {
     console.error('Mark message as read error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error marking message as read',
-    });
+    res.status(500).json({ success: false, message: 'Server error marking message as read' });
   }
 });
 
-// @desc    Get product analytics
+// -------------------- PRODUCT ANALYTICS -------------------- //
 router.get('/analytics/products', async (req, res) => {
   try {
     const topProducts = await query(`
@@ -453,18 +413,11 @@ router.get('/analytics/products', async (req, res) => {
 
     res.json({
       success: true,
-      data: {
-        top_products: topProducts,
-        low_stock_products: lowStockProducts,
-        category_sales: categorySales,
-      },
+      data: { top_products: topProducts, low_stock_products: lowStockProducts, category_sales: categorySales },
     });
   } catch (error) {
     console.error('Get product analytics error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error getting product analytics',
-    });
+    res.status(500).json({ success: false, message: 'Server error getting product analytics' });
   }
 });
 

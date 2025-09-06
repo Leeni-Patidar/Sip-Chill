@@ -41,7 +41,7 @@ function ShopContent() {
     const fetchCategories = async () => {
       try {
         const res = await api.get('/api/categories');
-        const cats = res.data?.data?.categories || [];
+         const cats = res.data?.data || [];
         setCategories(cats);
       } catch (err) {
         console.error('Error fetching categories:', err);

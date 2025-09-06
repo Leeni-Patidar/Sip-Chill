@@ -9,6 +9,7 @@ import { getAllProducts } from "../../api/products";
 const AdminDashboard = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
   const [activeTab, setActiveTab] = useState("overview");
   const [adminProducts, setAdminProducts] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -23,6 +24,7 @@ const AdminDashboard = () => {
       navigate("/");
       return;
     }
+
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -33,36 +35,39 @@ const AdminDashboard = () => {
           getAllUsers({ page: 1, limit: 20 }),
         ]);
 
-        if (statsRes.success && statsRes.data?.data) {
+        // Dashboard stats
+        if (statsRes?.success && statsRes.data?.data) {
           setDashboardStats(statsRes.data.data.stats);
           setRecentOrders(statsRes.data.data.recent_orders || []);
         }
 
-        if (ordersRes.success) {
-          setOrders(ordersRes.data?.data?.orders || []);
-        }
+        // Orders
+        if (ordersRes?.success) setOrders(ordersRes.data?.data?.orders || []);
 
-        if (productsRes.data) {
-          setAdminProducts(productsRes.data || []);
-        }
+        // Products
+        if (productsRes?.data) setAdminProducts(productsRes.data || []);
 
-        if (usersRes.success) {
-          const usersArr = Array.isArray(usersRes.data?.data?.users)
-            ? usersRes.data.data.users.map((u) => ({
-                ...u,
-                createdAt: u.createdAt || u.created_at,
-                name: u.name || `${u.first_name || ""} ${u.last_name || ""}`.trim(),
-              }))
-            : [];
+        // Users
+        if (usersRes?.success) {
+          console.log("Users API response:", usersRes.data); // Debug
 
-          setUsers(usersArr);
+          // Flexible handling: check multiple possible paths
+          const userList =
+            usersRes.data?.data?.users || // common path
+            usersRes.data?.users ||       // alternative path
+            [];
 
-          const sortedUsers = usersArr
+          const formattedUsers = userList.map(u => ({
+            ...u,
+            createdAt: u.createdAt || u.created_at || new Date().toISOString(),
+            name: u.name || `${u.first_name || ""} ${u.last_name || ""}`.trim() || "No Name",
+          }));
+
+          setUsers(formattedUsers);
+
+          const sortedUsers = formattedUsers
             .slice()
-            .sort(
-              (a, b) =>
-                new Date(b.createdAt) - new Date(a.createdAt)
-            );
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
           setRecentUsers(sortedUsers.slice(0, 5));
         }
@@ -72,6 +77,7 @@ const AdminDashboard = () => {
         setLoading(false);
       }
     };
+
     fetchData();
   }, [isAuthenticated, user, navigate]);
 
@@ -84,16 +90,11 @@ const AdminDashboard = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "confirmed":
-        return "bg-blue-100 text-blue-800";
-      case "shipped":
-        return "bg-purple-100 text-purple-800";
-      case "delivered":
-        return "bg-green-100 text-green-800";
-      case "cancelled":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
+      case "confirmed": return "bg-blue-100 text-blue-800";
+      case "shipped": return "bg-purple-100 text-purple-800";
+      case "delivered": return "bg-green-100 text-green-800";
+      case "cancelled": return "bg-red-100 text-red-800";
+      default: return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -102,12 +103,8 @@ const AdminDashboard = () => {
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
         <div className="text-center">
           <i className="ri-error-warning-line text-6xl text-red-500 mb-4"></i>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Access Denied
-          </h2>
-          <p className="text-gray-600 mb-6">
-            You don't have permission to access this page.
-          </p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
+          <p className="text-gray-600 mb-6">You don't have permission to access this page.</p>
         </div>
       </div>
     );
@@ -120,9 +117,7 @@ const AdminDashboard = () => {
         <div className="admin-card bg-white rounded-2xl shadow-xl p-8 mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Admin Dashboard
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
               <p className="text-gray-600">Welcome back, {user.name}</p>
             </div>
             <span className="px-3 py-1 text-sm font-medium bg-purple-100 text-purple-800 rounded-full">
@@ -132,111 +127,66 @@ const AdminDashboard = () => {
 
           {/* Tabs */}
           <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setActiveTab("overview")}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                activeTab === "overview"
-                  ? "bg-white text-amber-700 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              Overview
-            </button>
-            <button
-              onClick={() => setActiveTab("products")}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                activeTab === "products"
-                  ? "bg-white text-amber-700 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              Products ({totalProducts})
-            </button>
-            <button
-              onClick={() => setActiveTab("orders")}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                activeTab === "orders"
-                  ? "bg-white text-amber-700 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              Orders ({totalOrders})
-            </button>
+            {[
+              { key: "overview", label: "Overview" },
+              { key: "products", label: `Products (${totalProducts})` },
+              { key: "orders", label: `Orders (${totalOrders})` },
+            ].map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === tab.key ? "bg-white text-amber-700 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Overview */}
+        {/* Overview Tab */}
         {activeTab === "overview" && (
           <div className="space-y-8">
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="admin-card bg-white rounded-2xl shadow-xl p-6 flex justify-between items-center">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Users</p>
-                  <p className="text-2xl font-bold text-gray-900">{totalUsers}</p>
+              {[
+                { title: "Total Users", value: totalUsers, icon: "ri-user-3-line", bg: "bg-purple-100", text: "text-purple-600" },
+                { title: "Total Products", value: totalProducts, icon: "ri-product-hunt-line", bg: "bg-amber-100", text: "text-amber-600" },
+                { title: "Total Orders", value: totalOrders, icon: "ri-shopping-cart-line", bg: "bg-blue-100", text: "text-blue-600" },
+              ].map((stat, idx) => (
+                <div key={idx} className="admin-card bg-white rounded-2xl shadow-xl p-6 flex justify-between items-center">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  </div>
+                  <div className={`w-12 h-12 ${stat.bg} rounded-lg flex items-center justify-center`}>
+                    <i className={`${stat.icon} ${stat.text} text-2xl`}></i>
+                  </div>
                 </div>
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <i className="ri-user-3-line text-purple-600 text-2xl"></i>
-                </div>
-              </div>
-
-              <div className="admin-card bg-white rounded-2xl shadow-xl p-6 flex justify-between items-center">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Products</p>
-                  <p className="text-2xl font-bold text-gray-900">{totalProducts}</p>
-                </div>
-                <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
-                  <i className="ri-product-hunt-line text-amber-600 text-2xl"></i>
-                </div>
-              </div>
-
-              <div className="admin-card bg-white rounded-2xl shadow-xl p-6 flex justify-between items-center">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Orders</p>
-                  <p className="text-2xl font-bold text-gray-900">{totalOrders}</p>
-                </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <i className="ri-shopping-cart-line text-blue-600 text-2xl"></i>
-                </div>
-              </div>
+              ))}
             </div>
 
             {/* Recent Orders & New Users */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Recent Orders */}
               <div className="admin-card bg-white rounded-2xl shadow-xl p-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                  Recent Orders
-                </h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Recent Orders</h2>
                 <div className="space-y-4">
-                  {(recentOrders || []).map((order) => (
-                    <div
-                      key={order.id}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                    >
+                  {(recentOrders || []).length > 0 ? recentOrders.map(order => (
+                    <div key={order.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                       <div>
-                        <h3 className="font-medium text-gray-900">
-                          Order #{order.order_number}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {new Date(order.created_at).toLocaleDateString()}
-                        </p>
+                        <h3 className="font-medium text-gray-900">Order #{order.order_number}</h3>
+                        <p className="text-sm text-gray-600">{new Date(order.created_at).toLocaleDateString()}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold text-gray-900">
-                          ₹{order.total_amount}
-                        </p>
-                        <span
-                          className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                            order.status
-                          )}`}
-                        >
+                        <p className="font-semibold text-gray-900">₹{order.total_amount}</p>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(order.status)}`}>
                           {order.status}
                         </span>
                       </div>
                     </div>
-                  ))}
-                  {(recentOrders || []).length === 0 && (
+                  )) : (
                     <div className="text-center py-8">
                       <i className="ri-shopping-cart-line text-4xl text-gray-300 mb-2"></i>
                       <p className="text-gray-500">No orders yet</p>
@@ -247,25 +197,17 @@ const AdminDashboard = () => {
 
               {/* New Users */}
               <div className="admin-card bg-white rounded-2xl shadow-xl p-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                  New Registered Users
-                </h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">New Registered Users</h2>
                 <div className="space-y-4">
-                  {(recentUsers || []).map((u) => (
-                    <div
-                      key={u.id}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                    >
+                  {(recentUsers || []).length > 0 ? recentUsers.map(u => (
+                    <div key={u.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                       <div>
                         <h3 className="font-medium text-gray-900">{u.name}</h3>
                         <p className="text-sm text-gray-600">{u.email}</p>
                       </div>
-                      <p className="text-sm text-gray-500">
-                        {new Date(u.createdAt).toLocaleDateString()}
-                      </p>
+                      <p className="text-sm text-gray-500">{new Date(u.createdAt).toLocaleDateString()}</p>
                     </div>
-                  ))}
-                  {(recentUsers || []).length === 0 && (
+                  )) : (
                     <div className="text-center py-8">
                       <i className="ri-user-line text-4xl text-gray-300 mb-2"></i>
                       <p className="text-gray-500">No users yet</p>
@@ -281,7 +223,9 @@ const AdminDashboard = () => {
           <ProductManagement products={adminProducts} setProducts={setAdminProducts} />
         )}
 
-        {activeTab === "orders" && <OrderManagement orders={orders} />}
+        {activeTab === "orders" && (
+          <OrderManagement orders={orders} />
+        )}
       </div>
     </div>
   );
