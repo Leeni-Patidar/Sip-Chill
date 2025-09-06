@@ -1,39 +1,111 @@
-// import axios from 'axios';
-
-// export const getDashboardStats = () => axios.get('/api/admin/dashboard');
-// export const getAllOrders = () => axios.get('/api/admin/orders');
-// export const updateOrderStatus = (id, data) => axios.put(`/api/admin/orders/${id}/status`, data);
-// export const getAllUsers = () => axios.get('/api/admin/users');
-// export const updateUserStatus = (id, data) => axios.put(`/api/admin/users/${id}/status`, data);
-// export const getContactMessages = () => axios.get('/api/admin/contact-messages');
-// export const markMessageRead = (id) => axios.put(`/api/admin/contact-messages/${id}/read`);
-// export const getProductAnalytics = () => axios.get('/api/admin/analytics/products');
-
-
-
-import api from './api';
+// src/api/admin.js
+import api from "./api";
 
 // ---- Admin API Calls ---- //
-export const getDashboardStats = () =>
-  api.get("/api/admin/dashboard");
+export const getDashboardStats = async () => {
+  try {
+    const res = await api.get("/api/admin/dashboard");
+    return { success: true, data: res.data };
+  } catch (err) {
+    console.error("Get dashboard stats error:", err.response?.data || err.message);
+    return {
+      success: false,
+      message: err.response?.data?.message || "Failed to fetch dashboard stats",
+    };
+  }
+};
 
-export const getAllOrders = () =>
-  api.get("/api/admin/orders");
+// Orders
+export const getAllOrders = async (params = { page: 1, limit: 20 }) => {
+  try {
+    const res = await api.get("/api/admin/orders", { params });
+    return { success: true, data: res.data.data };
+  } catch (err) {
+    console.error("Get admin orders error:", err.response?.data || err.message);
+    return {
+      success: false,
+      message: err.response?.data?.message || "Failed to fetch orders",
+    };
+  }
+};
 
-export const updateOrderStatus = (id, data) =>
-  api.put(`/api/admin/orders/${id}/status`, data);
+export const updateOrderStatus = async (id, data) => {
+  try {
+    const res = await api.put(`/api/admin/orders/${id}/status`, data);
+    return { success: true, data: res.data };
+  } catch (err) {
+    console.error("Update order status error:", err.response?.data || err.message);
+    return {
+      success: false,
+      message: err.response?.data?.message || "Failed to update order status",
+    };
+  }
+};
 
-export const getAllUsers = () =>
-  api.get("/api/admin/users");
+// Users
+export const getAllUsers = async (params = { page: 1, limit: 20 }) => {
+  try {
+    const res = await api.get("/api/admin/users", { params });
+    return { success: true, data: res.data.data };
+  } catch (err) {
+    console.error("Get admin users error:", err.response?.data || err.message);
+    return {
+      success: false,
+      message: err.response?.data?.message || "Failed to fetch users",
+    };
+  }
+};
 
-export const updateUserStatus = (id, data) =>
-  api.put(`/api/admin/users/${id}/status`, data);
+export const updateUserStatus = async (id, data) => {
+  try {
+    const res = await api.put(`/api/admin/users/${id}/status`, data);
+    return { success: true, data: res.data };
+  } catch (err) {
+    console.error("Update user status error:", err.response?.data || err.message);
+    return {
+      success: false,
+      message: err.response?.data?.message || "Failed to update user status",
+    };
+  }
+};
 
-export const getContactMessages = () =>
-  api.get("/api/admin/contact-messages");
+// Contact messages
+export const getContactMessages = async (params = { page: 1, limit: 20 }) => {
+  try {
+    const res = await api.get("/api/admin/contact-messages", { params });
+    return { success: true, data: res.data };
+  } catch (err) {
+    console.error("Get contact messages error:", err.response?.data || err.message);
+    return {
+      success: false,
+      message: err.response?.data?.message || "Failed to fetch contact messages",
+    };
+  }
+};
 
-export const markMessageRead = (id) =>
-  axios.put(`/api/admin/contact-messages/${id}/read`, {}, config);
+export const markMessageRead = async (id) => {
+  try {
+    const res = await api.put(`/api/admin/contact-messages/${id}/read`);
+    return { success: true, data: res.data };
+  } catch (err) {
+    console.error("Mark message read error:", err.response?.data || err.message);
+    return {
+      success: false,
+      message: err.response?.data?.message || "Failed to mark message as read",
+    };
+  }
+};
 
-export const getProductAnalytics = () =>
-  axios.get("/api/admin/analytics/products", config);
+// Analytics
+export const getProductAnalytics = async () => {
+  try {
+    const res = await api.get("/api/admin/analytics/products");
+    return { success: true, data: res.data };
+  } catch (err) {
+    console.error("Get product analytics error:", err.response?.data || err.message);
+    return {
+      success: false,
+      message: err.response?.data?.message || "Failed to fetch product analytics",
+    };
+  }
+};

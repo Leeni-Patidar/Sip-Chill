@@ -7,37 +7,79 @@ const { optionalAuth, protect, authorize } = require('../middleware/auth');
 // @access  Admin
 router.post('/', protect, authorize('admin'), async (req, res) => {
   try {
-    const { name, description, price, image_url, category_id, is_featured, stock_quantity, allergens, reviews } = req.body;
+    let { 
+      name, 
+      description, 
+      price, 
+      image_url, 
+      category_id, 
+      is_featured, 
+      stock_quantity, 
+      allergens, 
+      reviews 
+    } = req.body;
+
     if (!name || !price || !category_id) {
       return res.status(400).json({ success: false, message: 'Name, price, and category are required.' });
     }
+
+    // ✅ Normalize fields
+    is_featured = is_featured ? 1 : 0;
+    const is_available = 1; // default new product as available
+    allergens = allergens || null;
+    reviews = reviews ? JSON.stringify(reviews) : null;
+
     const result = await query(
-      `INSERT INTO products (name, description, price, image_url, category_id, is_featured, stock_quantity, allergens, reviews, is_available)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)`,
-      [name, description, price, image_url, category_id, is_featured || false, stock_quantity || 0, allergens, reviews]
+      `INSERT INTO products 
+        (name, description, price, image_url, category_id, is_featured, stock_quantity, allergens, reviews, is_available)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [name, description, price, image_url, category_id, is_featured, stock_quantity || 0, allergens, reviews, is_available]
     );
+
     res.status(201).json({ success: true, productId: result.insertId });
   } catch (error) {
-    console.error('Create product error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error('❌ Create product error:', error.sqlMessage || error.message);
+    res.status(500).json({ success: false, message: 'Server error creating product' });
   }
 });
+
 
 // @desc    Update a product (menu item)
 // @route   PUT /api/products/:id
 // @access  Admin
 router.put('/:id', protect, authorize('admin'), async (req, res) => {
   try {
-    const { name, description, price, image_url, category_id, is_featured, stock_quantity, allergens, reviews, is_available } = req.body;
+    let { 
+      name, 
+      description, 
+      price, 
+      image_url, 
+      category_id, 
+      is_featured, 
+      stock_quantity, 
+      allergens, 
+      reviews, 
+      is_available 
+    } = req.body;
     const { id } = req.params;
+
+    // ✅ Normalize fields
+    is_featured = is_featured ? 1 : 0;
+    is_available = is_available ? 1 : 0;
+    allergens = allergens || null;
+    reviews = reviews ? JSON.stringify(reviews) : null;
+
     const result = await query(
-      `UPDATE products SET name=?, description=?, price=?, image_url=?, category_id=?, is_featured=?, stock_quantity=?, allergens=?, reviews=?, is_available=? WHERE id=?`,
-      [name, description, price, image_url, category_id, is_featured, stock_quantity, allergens, reviews, is_available, id]
+      `UPDATE products 
+       SET name=?, description=?, price=?, image_url=?, category_id=?, is_featured=?, stock_quantity=?, allergens=?, reviews=?, is_available=? 
+       WHERE id=?`,
+      [name, description, price, image_url, category_id, is_featured, stock_quantity || 0, allergens, reviews, is_available, id]
     );
+
     res.json({ success: true, affectedRows: result.affectedRows });
   } catch (error) {
-    console.error('Update product error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error('❌ Update product error:', error.sqlMessage || error.message);
+    res.status(500).json({ success: false, message: 'Server error updating product' });
   }
 });
 

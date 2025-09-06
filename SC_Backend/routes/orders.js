@@ -72,7 +72,6 @@ router.post("/", protect, async (req, res) => {
   }
 });
 
-
 // Get logged-in user's orders
 router.get("/", protect, async (req, res) => {
   try {
