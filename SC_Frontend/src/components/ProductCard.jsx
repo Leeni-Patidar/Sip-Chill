@@ -76,11 +76,16 @@ const ProductCard = ({ product }) => {
             </div>
             
             <button
-              onClick={handleAddToCart}
-              className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-amber-700 text-white px-6 py-2 rounded-full font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-amber-800 whitespace-nowrap cursor-pointer"
-            >
-              Add to Cart
-            </button>
+  onClick={handleAddToCart}
+  className="absolute bottom-4 left-1/2 transform -translate-x-1/2
+             bg-amber-700 text-white px-6 py-2 rounded-full font-medium
+             opacity-100 lg:opacity-0 group-hover:opacity-100
+             transition-all duration-300 hover:bg-amber-800
+             whitespace-nowrap cursor-pointer z-10"
+>
+  Add to Cart
+</button>
+
           </div>
           <div className="p-4">
             <h3 className="font-semibold text-gray-800 mb-2 group-hover:text-amber-700 transition-colors">
