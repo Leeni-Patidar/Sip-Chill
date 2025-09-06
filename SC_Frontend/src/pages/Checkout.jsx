@@ -188,9 +188,8 @@ const Checkout = () => {
               onChange={(e) => setPaymentMethod(e.target.value)}
               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-amber-600 focus:outline-none"
             >
-              <option value="card">Card</option>
               <option value="online">Online</option>
-              <option value="cash">Cash</option>
+              <option value="cash">Cash On Delivery</option>
             </select>
           </div>
 

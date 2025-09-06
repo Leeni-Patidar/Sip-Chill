@@ -2,12 +2,13 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../api/api';
 import ProductCard from '../components/ProductCard';
-import { categories } from '../context/mock-data'; // Assuming categories are static or fetched elsewhere
 
 function ShopContent() {
   const [searchParams] = useSearchParams();
   const urlCategory = searchParams.get('category');
+
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]); // ✅ store categories from backend
   const [selectedCategory, setSelectedCategory] = useState(urlCategory || 'all');
   const [sortBy, setSortBy] = useState('name');
   const [priceRange, setPriceRange] = useState('all');
@@ -15,6 +16,7 @@ function ShopContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // ✅ Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -34,31 +36,49 @@ function ShopContent() {
     fetchProducts();
   }, []);
 
+  // ✅ Fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await api.get('/api/categories');
+        const cats = res.data?.data?.categories || [];
+        setCategories(cats);
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // ✅ Apply filters and sorting
   useEffect(() => {
     let filtered = [...products];
 
-    // Filter by category_id from URL or dropdown
+    // Filter by category_id
     if (selectedCategory !== 'all') {
       const categoryIdNum = Number(selectedCategory);
-      filtered = filtered.filter(product => product.category_id === categoryIdNum);
+      filtered = filtered.filter((product) => product.category_id === categoryIdNum);
     }
 
+    // Price range filter
     if (priceRange !== 'all') {
       switch (priceRange) {
         case 'under-150':
-          filtered = filtered.filter(product => product.price < 150);
+          filtered = filtered.filter((product) => product.price < 150);
           break;
         case '150-300':
-          filtered = filtered.filter(product => product.price >= 150 && product.price <= 300);
+          filtered = filtered.filter((product) => product.price >= 150 && product.price <= 300);
           break;
         case 'over-300':
-          filtered = filtered.filter(product => product.price > 300);
+          filtered = filtered.filter((product) => product.price > 300);
           break;
         default:
           break;
       }
     }
 
+    // Sorting
     switch (sortBy) {
       case 'price-low':
         filtered.sort((a, b) => a.price - b.price);
@@ -192,18 +212,20 @@ function ShopContent() {
 
 export default function Shop() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
-        <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto text-center">
-            <div className="animate-pulse">
-              <div className="h-16 bg-gray-200 rounded mb-4"></div>
-              <div className="h-8 bg-gray-200 rounded max-w-2xl mx-auto"></div>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
+          <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto text-center">
+              <div className="animate-pulse">
+                <div className="h-16 bg-gray-200 rounded mb-4"></div>
+                <div className="h-8 bg-gray-200 rounded max-w-2xl mx-auto"></div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <ShopContent />
     </Suspense>
   );

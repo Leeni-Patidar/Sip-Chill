@@ -72,4 +72,26 @@ router.post("/", protect, async (req, res) => {
   }
 });
 
+
+// Get logged-in user's orders
+router.get("/", protect, async (req, res) => {
+  try {
+    const orders = await query(
+      `SELECT o.id, o.order_number, o.total_amount, o.status, o.created_at,
+              COUNT(oi.id) as items_count
+       FROM orders o
+       LEFT JOIN order_items oi ON o.id = oi.order_id
+       WHERE o.user_id = ?
+       GROUP BY o.id
+       ORDER BY o.created_at DESC`,
+      [req.user.id]
+    );
+
+    res.json({ success: true, data: { orders } });
+  } catch (error) {
+    console.error("Get orders error:", error);
+    res.status(500).json({ success: false, message: "Server error fetching orders" });
+  }
+});
+
 module.exports = router;

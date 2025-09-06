@@ -1,9 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import { getOrders } from "../api/orders";
 
 const Profile = () => {
-  const { user, isAuthenticated, logout, updateProfile, orders } = useAuth();
+  const { user, isAuthenticated, logout, updateProfile } = useAuth();
+
+  const [orders, setOrders] = useState([]);
+
+useEffect(() => {
+    if (isAuthenticated) {
+      getOrders()
+        .then((res) => {
+          if (res.success) {
+            setOrders(res.data.orders);
+          }
+        })
+        .catch((err) => console.error("Error fetching orders:", err));
+    }
+  }, [isAuthenticated]);
+
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
@@ -341,84 +357,92 @@ const Profile = () => {
         )}
 
         {/* Orders Tab */}
-        {activeTab === "orders" && (
-          <div className="profile-card bg-white rounded-2xl shadow-xl p-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Order History
-              </h2>
-              <Link
-                to="/shop"
-                className="flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
-              >
-                <i className="ri-shopping-bag-line mr-2"></i> Continue Shopping
-              </Link>
-            </div>
+{activeTab === "orders" && (
+  <div className="profile-card bg-white rounded-2xl shadow-xl p-8">
+    {/* Header */}
+    <div className="flex items-center justify-between mb-6">
+      <h2 className="text-xl font-semibold text-gray-900">Order History</h2>
+      <Link
+        to="/shop"
+        className="flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+      >
+        <i className="ri-shopping-bag-line mr-2"></i> Continue Shopping
+      </Link>
+    </div>
 
-            {orders.length === 0 ? (
-              <div className="text-center py-12">
-                <i className="ri-shopping-bag-line text-6xl text-gray-300 mb-4"></i>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No orders yet
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Start shopping to see your orders here
-                </p>
-                <Link
-                  to="/shop"
-                  className="inline-flex items-center px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
-                >
-                  <i className="ri-shopping-bag-line mr-2"></i> Start Shopping
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {orders.map((order) => (
-                  <div
-                    key={order._id || order.id}
-                    className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+    {/* If no orders */}
+    {orders.length === 0 ? (
+      <div className="text-center py-12">
+        <i className="ri-shopping-bag-line text-6xl text-gray-300 mb-4"></i>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
+        <p className="text-gray-600 mb-6">
+          Start shopping to see your orders here
+        </p>
+        <Link
+          to="/shop"
+          className="inline-flex items-center px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+        >
+          <i className="ri-shopping-bag-line mr-2"></i> Start Shopping
+        </Link>
+      </div>
+    ) : (
+      <div className="space-y-4">
+        {orders.map((order) => {
+          const orderId = order._id || order.id;
+          const orderDate = order.createdAt || order.created_at;
+          const itemCount =
+            order.items_count ?? (order.items ? order.items.length : 0);
+          const totalAmount = order.total_amount ?? order.total ?? 0;
+
+          return (
+            <div
+              key={orderId}
+              className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="font-semibold text-gray-900">
+                    Order #{order.order_number || orderId}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {orderDate
+                      ? new Date(orderDate).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
+                      : "N/A"}
+                  </p>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <span
+                    className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(
+                      order.status
+                    )}`}
                   >
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
-                          Order #{order._id || order.id}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {new Date(order.createdAt).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <span
-                          className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(
-                            order.status
-                          )}`}
-                        >
-                          {order.status}
-                        </span>
-                        <Link
-                          to={`/orders/${order._id || order.id}`}
-                          className="text-amber-600 hover:text-amber-700 font-medium"
-                        >
-                          View Details
-                        </Link>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-gray-600">
-                        {order.items?.length || 0} item(s)
-                      </p>
-                      <p className="font-semibold text-gray-900">₹{order.total}</p>
-                    </div>
-                  </div>
-                ))}
+                    {order.status || "N/A"}
+                  </span>
+                  <Link
+                    to={`/orders/${orderId}`}
+                    className="text-amber-600 hover:text-amber-700 font-medium"
+                  >
+                    View Details
+                  </Link>
+                </div>
               </div>
-            )}
-          </div>
-        )}
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-gray-600">{itemCount} item(s)</p>
+                <p className="font-semibold text-gray-900">₹{totalAmount}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    )}
+  </div>
+)}
+
+
       </div>
     </div>
   );
