@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { getAllOrders, updateOrderStatus as apiUpdateOrderStatus } from "../../api/admin";
-import { Link } from "react-router-dom";
 
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
@@ -14,8 +13,7 @@ const OrderManagement = () => {
       setLoading(true);
       try {
         const res = await getAllOrders();
-        // SAFELY access orders using optional chaining
-        const orders = res?.data?.data?.orders || [];
+        const orders = res?.data?.orders || [];
         setOrders(orders);
       } catch (err) {
         console.error("Fetch orders error:", err);
@@ -91,12 +89,9 @@ const OrderManagement = () => {
 
   const safeOrders = Array.isArray(orders) ? orders : [];
 
-  // -------------------- SAFE SEARCH AND FILTER -------------------- //
   const filteredOrders = safeOrders
     .filter((order) => {
-      // Safely get customer name
       const customerName = `${order.first_name || ""} ${order.last_name || ""}`.trim();
-
       const matchesSearch =
         (order.order_number || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
         customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -138,19 +133,18 @@ const OrderManagement = () => {
         {Object.entries(orderStats).map(([key, value]) => (
           <div key={key} className="bg-white rounded-lg shadow-md p-4 text-center">
             <p
-              className={`text-2xl font-bold ${
-                key === "confirmed"
-                  ? "text-blue-600"
-                  : key === "preparing"
+              className={`text-2xl font-bold ${key === "confirmed"
+                ? "text-blue-600"
+                : key === "preparing"
                   ? "text-yellow-600"
                   : key === "shipped"
-                  ? "text-purple-600"
-                  : key === "delivered"
-                  ? "text-green-600"
-                  : key === "cancelled"
-                  ? "text-red-600"
-                  : "text-gray-900"
-              }`}
+                    ? "text-purple-600"
+                    : key === "delivered"
+                      ? "text-green-600"
+                      : key === "cancelled"
+                        ? "text-red-600"
+                        : "text-gray-900"
+                }`}
             >
               {value}
             </p>
@@ -167,9 +161,7 @@ const OrderManagement = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Search Orders
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Search Orders</label>
             <div className="relative">
               <input
                 type="text"
@@ -228,53 +220,20 @@ const OrderManagement = () => {
                 key={order.id}
                 className="order-card border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
               >
-                {/* Order Header */}
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-                  <div className="flex items-center space-x-4">
-                    <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center ${getStatusColor(
-                        order.status
-                      )}`}
-                    >
-                      <i className={`${getStatusIcon(order.status)} text-lg`}></i>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Order #{order.order_number}</h3>
-                      <p className="text-sm text-gray-600">
-                        {new Date(order.created_at || order.createdAt).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <span
-                      className={`px-3 py-1 text-sm font-medium rounded-full border ${getStatusColor(
-                        order.status
-                      )}`}
-                    >
-                      {order.status?.charAt(0).toUpperCase() + order.status?.slice(1)}
-                    </span>
-                    <p className="text-xl font-bold text-gray-900">₹{order.total_amount || 0}</p>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
+                {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div className="flex space-x-2">
-                    <Link
-                      to={`/orders/${order.id}`}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                    >
-                      <i className="ri-eye-line mr-1"></i>
-                      View Details
-                    </Link>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Order #{order.order_number}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {order.first_name} {order.last_name} <br />
+                      📞 {order.contact_phone || "N/A"} <br />
+                      📍 {order.delivery_address || "N/A"}
+                    </p>
                   </div>
 
+                  {/* Status dropdown on right */}
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium text-gray-700">Update Status:</span>
                     <select
@@ -289,6 +248,29 @@ const OrderManagement = () => {
                       <option value="cancelled">Cancelled</option>
                     </select>
                   </div>
+                </div>
+
+                {/* Items */}
+                <div className="mt-4">
+                  <h4 className="text-md font-medium text-gray-800">Items:</h4>
+                  <ul className="list-disc list-inside text-gray-700 text-sm mt-2">
+                    {order.items && order.items.length > 0 ? (
+                      order.items.map((item, i) => (
+                        <li key={i}>
+                          {item.product_name} × {item.quantity} — ₹{item.product_price}
+                        </li>
+                      ))
+                    ) : (
+                      <li className="text-gray-500">No items found</li>
+                    )}
+                  </ul>
+                </div>
+
+                {/* Total */}
+                <div className="mt-4 text-right">
+                  <span className="text-md font-semibold text-gray-900">
+                    Total: ₹{order.total_amount || 0}
+                  </span>
                 </div>
               </div>
             ))}
