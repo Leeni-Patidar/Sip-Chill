@@ -114,7 +114,7 @@ export default function Home() {
                 </div>
               </div>
               <a
-                href="/shop?category=2"
+                href="/shop?category=1"
                 className="inline-flex items-center bg-amber-700 text-white px-6 py-3 rounded-full font-semibold hover:bg-amber-800 transition-colors whitespace-nowrap"
               >
                 Order Milkshakes

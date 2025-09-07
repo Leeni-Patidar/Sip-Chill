@@ -18,11 +18,11 @@ const CancellationRefund = () => {
               </h2>
               <p className="text-black leading-relaxed mb-4">
                 You can cancel your order within{" "}
-                <span className="font-semibold">[Number] hours</span> of placing
+                <span className="font-semibold">1 hours</span> of placing
                 it, provided it has not already been shipped. To cancel your
                 order, please contact our customer support team at{" "}
-                <span className="font-semibold">[Email Address]</span> or{" "}
-                <span className="font-semibold">[Phone Number]</span> with your
+                <span className="font-semibold">  hello@sipandchill.com</span> or{" "}
+                with your
                 order details.
               </p>
               <p className="text-black leading-relaxed">

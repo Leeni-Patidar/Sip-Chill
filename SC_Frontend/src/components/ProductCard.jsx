@@ -10,11 +10,11 @@ const ProductCard = ({ product }) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       import('gsap').then(({ gsap }) => {
-        gsap.fromTo(cardRef.current, 
+        gsap.fromTo(cardRef.current,
           { opacity: 0, y: 50 },
-          { 
-            opacity: 1, 
-            y: 0, 
+          {
+            opacity: 1,
+            y: 0,
             duration: 0.6,
             scrollTrigger: {
               trigger: cardRef.current,
@@ -34,7 +34,7 @@ const ProductCard = ({ product }) => {
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.image
+      image: product.image_url
     });
   };
 
@@ -58,7 +58,7 @@ const ProductCard = ({ product }) => {
         <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer">
           <div className="relative overflow-hidden">
             <img
-              src={product.image}
+              src={product.image_url}
               alt={product.name}
               className="w-full h-64 object-cover object-top group-hover:scale-105 transition-transform duration-500"
             />
@@ -74,17 +74,21 @@ const ProductCard = ({ product }) => {
                 </span>
               )}
             </div>
-            
+
             <button
-  onClick={handleAddToCart}
-  className="absolute bottom-4 left-1/2 transform -translate-x-1/2
+              onClick={handleAddToCart}
+              className="absolute bottom-4 left-1/2 transform -translate-x-1/2
              bg-amber-700 text-white px-6 py-2 rounded-full font-medium
              opacity-100 lg:opacity-0 group-hover:opacity-100
              transition-all duration-300 hover:bg-amber-800
              whitespace-nowrap cursor-pointer z-10"
->
-  Add to Cart
-</button>
+            >
+              Add to Cart
+            </button>
+
+
+
+
 
           </div>
           <div className="p-4">

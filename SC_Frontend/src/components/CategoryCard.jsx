@@ -30,7 +30,7 @@ const CategoryCard = ({ category }) => {
       <div ref={cardRef} className="group cursor-pointer">
         <div className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
           <img
-            src={category.image}
+            src={category.image_url}
             alt={category.name}
             className="w-full h-64 object-cover object-top group-hover:scale-110 transition-transform duration-500"
           />
