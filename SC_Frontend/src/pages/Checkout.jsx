@@ -3,13 +3,13 @@ import { useCart } from "../context/CartContext";
 import { placeOrder } from "../api/orders";
 import { getUserProfile } from "../api/users";
 import { getCoupons } from "../api/coupons";
-import { createRazorpayOrder } from "../api/payment";
+import { createRazorpayOrder, getRazorpayKey, verifyRazorpayPayment } from "../api/payment";
 
 const Checkout = () => {
   const { items: cartItems = [], clearCart } = useCart();
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [contactPhone, setContactPhone] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("card");
+  const [paymentMethod, setPaymentMethod] = useState("cash");
   const [specialInstructions, setSpecialInstructions] = useState("");
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0);
@@ -56,9 +56,10 @@ const Checkout = () => {
     setCouponCode(code);
     const selected = coupons.find(c => c.code === code);
     if (selected) {
-      setDiscount(selected.discount_type === "percentage"
-        ? +(subtotal * selected.discount_value / 100).toFixed(2)
-        : +selected.discount_value.toFixed(2)
+      setDiscount(
+        selected.discount_type === "percentage"
+          ? +(subtotal * selected.discount_value / 100).toFixed(2)
+          : +selected.discount_value.toFixed(2)
       );
     } else setDiscount(0);
   };
@@ -99,31 +100,40 @@ const Checkout = () => {
 
     try {
       if (paymentMethod === "online") {
-        const amountInPaise = Math.round(finalTotal * 100); // FIX: convert to integer paise
+        const amountInPaise = Math.round(finalTotal * 100);
         const res = await createRazorpayOrder(amountInPaise);
         if (!res.success) throw new Error(res.message || "Failed to create Razorpay order");
 
         const isScriptLoaded = await loadRazorpayScript();
         if (!isScriptLoaded) throw new Error("Razorpay SDK failed to load");
 
+        const keyData = await getRazorpayKey();
+        if (!keyData.key) throw new Error("Failed to fetch Razorpay key");
+
         const options = {
-          key: "rzp_test_1FrE9xUhkujHMF",
+          key: keyData.key,
           amount: res.amount,
           currency: "INR",
           name: "Sip-Chill",
           description: "Order Payment",
           order_id: res.id,
           handler: async function (response) {
-            orderData.razorpayPaymentId = response.razorpay_payment_id;
-            orderData.razorpayOrderId = response.razorpay_order_id;
-            orderData.razorpaySignature = response.razorpay_signature;
+            const verifyData = await verifyRazorpayPayment(response);
 
-            const orderRes = await placeOrder(orderData);
-            if (orderRes.success) {
-              alert(`Order placed! Order No: ${orderRes.orderNumber}`);
-              clearCart();
+            if (verifyData.success) {
+              orderData.razorpayPaymentId = response.razorpay_payment_id;
+              orderData.razorpayOrderId = response.razorpay_order_id;
+              orderData.razorpaySignature = response.razorpay_signature;
+
+              const orderRes = await placeOrder(orderData);
+              if (orderRes.success) {
+                alert(`Order placed! Order No: ${orderRes.orderNumber}`);
+                clearCart();
+              } else {
+                alert(orderRes.message || "Failed to place order");
+              }
             } else {
-              alert(orderRes.message || "Failed to place order");
+              alert("Payment verification failed");
             }
           },
           prefill: { contact: contactPhone },
