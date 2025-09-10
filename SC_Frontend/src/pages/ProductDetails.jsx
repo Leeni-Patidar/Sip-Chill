@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext"; // ✅ auth check
 import { getProductById } from "../api/products";
 
 const ProductDetails = () => {
@@ -8,17 +9,16 @@ const ProductDetails = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const { addItem } = useCart();
+  const { isAuthenticated } = useAuth(); // ✅ login state
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-
         const response = await getProductById(id);
-
-        // ✅ Fix: directly set response.data (no extra .data)
         setProduct(response.data || null);
       } catch (err) {
         console.error("Failed to fetch product:", err);
@@ -30,6 +30,25 @@ const ProductDetails = () => {
 
     if (id) fetchProduct();
   }, [id]);
+
+  const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      setShowLoginModal(true); // ✅ ask login
+      return;
+    }
+
+    if (!(product.stock_quantity > 0)) {
+      alert("Sorry, this product is out of stock!");
+      return;
+    }
+
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image_url || product.image,
+    });
+  };
 
   if (loading) {
     return <div className="p-6">Loading product details...</div>;
@@ -49,7 +68,7 @@ const ProductDetails = () => {
         {/* Product Image */}
         <div>
           <img
-            src={product.image_url || product.image}  // ✅ support both keys
+            src={product.image_url || product.image}
             alt={product.name}
             className="w-full h-auto rounded-2xl shadow-md"
           />
@@ -84,7 +103,7 @@ const ProductDetails = () => {
           {/* Add to Cart */}
           <div className="flex space-x-4">
             <button
-              onClick={() => addItem(product)}
+              onClick={handleAddToCart}
               disabled={!(product.stock_quantity > 0)}
               className={`px-6 py-3 rounded-full font-medium text-white transition ${
                 product.stock_quantity > 0
@@ -97,6 +116,34 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* ✅ Login Modal */}
+      {showLoginModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-2xl shadow-lg w-96">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Please Login
+            </h2>
+            <p className="text-gray-600 mb-6">
+              You need to login before adding products to your cart.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowLoginModal(false)}
+                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <a
+                href="/login"
+                className="px-4 py-2 rounded-lg bg-amber-700 text-white hover:bg-amber-800"
+              >
+                Login
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

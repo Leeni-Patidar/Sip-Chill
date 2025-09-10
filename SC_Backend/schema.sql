@@ -1,11 +1,3 @@
--- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
---
--- Host: localhost    Database: sip_chill_db
--- ------------------------------------------------------
--- Server version	8.0.43
-
---
-
 --
 -- Table structure for table `cart`
 --
@@ -34,7 +26,9 @@ LOCK TABLES `cart` WRITE;
 /*!40000 ALTER TABLE `cart` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
+
+
+------------------------------------------------------------------------------------------------------------------
 -- Table structure for table `cart_items`
 --
 
@@ -66,7 +60,9 @@ LOCK TABLES `cart_items` WRITE;
 /*!40000 ALTER TABLE `cart_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
+
+
+------------------------------------------------------------------------------------------------------------------
 -- Table structure for table `categories`
 --
 
@@ -94,7 +90,9 @@ LOCK TABLES `categories` WRITE;
 /*!40000 ALTER TABLE `categories` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
+
+
+------------------------------------------------------------------------------------------------------------------
 -- Table structure for table `contact_messages`
 --
 
@@ -122,7 +120,9 @@ LOCK TABLES `contact_messages` WRITE;
 /*!40000 ALTER TABLE `contact_messages` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
+
+
+------------------------------------------------------------------------------------------------------------------
 -- Table structure for table `coupons`
 --
 
@@ -156,7 +156,9 @@ LOCK TABLES `coupons` WRITE;
 /*!40000 ALTER TABLE `coupons` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
+
+
+------------------------------------------------------------------------------------------------------------------
 -- Table structure for table `order_items`
 --
 
@@ -189,7 +191,9 @@ LOCK TABLES `order_items` WRITE;
 /*!40000 ALTER TABLE `order_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
+
+
+------------------------------------------------------------------------------------------------------------------
 -- Table structure for table `orders`
 --
 
@@ -229,7 +233,9 @@ LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
+
+
+------------------------------------------------------------------------------------------------------------------
 -- Table structure for table `products`
 --
 
@@ -266,7 +272,9 @@ LOCK TABLES `products` WRITE;
 UNLOCK TABLES;
 
 
---
+
+
+------------------------------------------------------------------------------------------------------------------
 -- Table structure for table `users`
 --
 

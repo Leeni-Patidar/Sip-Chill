@@ -1,17 +1,18 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext'; // ✅ import auth context
+import React, { useRef, useEffect, useState } from "react";
+import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
 const ProductCard = ({ product }) => {
   const { addItem } = useCart();
-  const { isAuthenticated } = useAuth(); // ✅ check login status
+  const { isAuthenticated } = useAuth();
   const cardRef = useRef(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      import('gsap').then(({ gsap }) => {
-        gsap.fromTo(cardRef.current,
+    if (typeof window !== "undefined") {
+      import("gsap").then(({ gsap }) => {
+        gsap.fromTo(
+          cardRef.current,
           { opacity: 0, y: 50 },
           {
             opacity: 1,
@@ -19,9 +20,9 @@ const ProductCard = ({ product }) => {
             duration: 0.6,
             scrollTrigger: {
               trigger: cardRef.current,
-              start: 'top 85%',
-              toggleActions: 'play none none reverse'
-            }
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+            },
           }
         );
       });
@@ -33,7 +34,12 @@ const ProductCard = ({ product }) => {
     e.stopPropagation();
 
     if (!isAuthenticated) {
-      setShowLoginModal(true); // ✅ show login popup
+      setShowLoginModal(true); // ✅ ask to login
+      return;
+    }
+
+    if (!product.stock_quantity) {
+      alert("Sorry, this product is out of stock!");
       return;
     }
 
@@ -41,45 +47,32 @@ const ProductCard = ({ product }) => {
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.image_url
+      image: product.image_url,
     });
   };
 
-  // Parse reviews JSON string if needed
-  // let reviewData = { rating: 0, reviews: 0 };
-  // if (product.reviews) {
-  //   if (typeof product.reviews === 'string') {
-  //     try {
-  //       reviewData = JSON.parse(product.reviews);
-  //     } catch {
-  //       reviewData = { rating: 0, reviews: 0 };
-  //     }
-  //   } else if (typeof product.reviews === 'object') {
-  //     reviewData = product.reviews;
-  //   }
-  // }
-
-
-  // Parse reviews JSON string if needed
-let reviewData = { rating: 0, reviews: [] }; // default object with empty reviews array
-if (product.reviews) {
-  if (typeof product.reviews === 'string') {
-    try {
-      const parsed = JSON.parse(product.reviews);
+  // ✅ Review parsing (safe)
+  let reviewData = { rating: 0, reviews: [] };
+  if (product.reviews) {
+    if (typeof product.reviews === "string") {
+      try {
+        const parsed = JSON.parse(product.reviews);
+        reviewData = {
+          rating: parsed.rating || 0,
+          reviews: Array.isArray(parsed.reviews) ? parsed.reviews : [],
+        };
+      } catch {
+        reviewData = { rating: 0, reviews: [] };
+      }
+    } else if (typeof product.reviews === "object") {
       reviewData = {
-        rating: parsed.rating || 0,
-        reviews: Array.isArray(parsed.reviews) ? parsed.reviews : []
+        rating: product.reviews.rating || 0,
+        reviews: Array.isArray(product.reviews.reviews)
+          ? product.reviews.reviews
+          : [],
       };
-    } catch {
-      reviewData = { rating: 0, reviews: [] };
     }
-  } else if (typeof product.reviews === 'object') {
-    reviewData = {
-      rating: product.reviews.rating || 0,
-      reviews: Array.isArray(product.reviews.reviews) ? product.reviews.reviews : []
-    };
   }
-}
 
   return (
     <>
@@ -92,6 +85,8 @@ if (product.reviews) {
                 alt={product.name}
                 className="w-full h-64 object-cover object-top group-hover:scale-105 transition-transform duration-500"
               />
+
+              {/* Badges */}
               <div className="absolute top-4 left-4 flex flex-col space-y-2">
                 {product.featured && (
                   <span className="bg-amber-700 text-white text-xs px-2 py-1 rounded-full font-medium">
@@ -105,6 +100,7 @@ if (product.reviews) {
                 )}
               </div>
 
+              {/* Add to Cart */}
               <button
                 onClick={handleAddToCart}
                 className="absolute bottom-4 left-1/2 transform -translate-x-1/2
@@ -116,29 +112,31 @@ if (product.reviews) {
                 Add to Cart
               </button>
             </div>
+
+            {/* Product Info */}
             <div className="p-4">
               <h3 className="font-semibold text-gray-800 mb-2 group-hover:text-amber-700 transition-colors">
                 {product.name}
               </h3>
-              {/* <div className="flex items-center space-x-1 mb-3">
-                <div className="flex text-yellow-400">
-                  {[...Array(5)].map((_, i) => (
-                    <i key={i} className={`ri-star-${i < Math.floor(reviewData.rating) ? 'fill' : 'line'} text-sm`}></i>
-                  ))}
-                </div>
-                <span className="text-sm text-gray-500">({reviewData.reviews} reviews)</span>
-              </div> */}
               <div className="flex items-center space-x-2">
-                <span className="text-lg font-bold text-amber-700">₹{product.price}</span>
+                <span className="text-lg font-bold text-amber-700">
+                  ₹{product.price}
+                </span>
                 {product.originalPrice && (
-                  <span className="text-sm text-gray-500 line-through">₹{product.originalPrice}</span>
+                  <span className="text-sm text-gray-500 line-through">
+                    ₹{product.originalPrice}
+                  </span>
                 )}
               </div>
               <div className="mt-2">
                 {product.stock_quantity ? (
-                  <span className="text-green-600 text-sm font-medium">In Stock</span>
+                  <span className="text-green-600 text-sm font-medium">
+                    In Stock
+                  </span>
                 ) : (
-                  <span className="text-red-500 text-sm font-medium">Out of Stock</span>
+                  <span className="text-red-500 text-sm font-medium">
+                    Out of Stock
+                  </span>
                 )}
               </div>
             </div>
@@ -146,12 +144,16 @@ if (product.reviews) {
         </a>
       </div>
 
-      {/* ✅ Simple Login Modal */}
+      {/* ✅ Login Modal */}
       {showLoginModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-2xl shadow-lg w-96">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Please Login</h2>
-            <p className="text-gray-600 mb-6">You need to login before adding products to your cart.</p>
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Please Login
+            </h2>
+            <p className="text-gray-600 mb-6">
+              You need to login before adding products to your cart.
+            </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowLoginModal(false)}
