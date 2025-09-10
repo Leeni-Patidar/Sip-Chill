@@ -33,7 +33,8 @@ const ProductManagement = () => {
     setLoading(true);
     try {
       const res = await getAllProducts();
-      setProducts(res.data?.data?.products || []);
+      setProducts(res.data?.data?.products || res.data?.products || []);
+
     } catch (err) {
       console.error('Fetch products error:', err);
     } finally {

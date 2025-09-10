@@ -22,7 +22,7 @@ function ShopContent() {
       try {
         setLoading(true);
         const response = await api.get('/api/products');
-        const productsArr = response.data?.data?.products || [];
+       const productsArr = response.data?.data?.products || response.data?.products || [];
         setProducts(productsArr);
         setFilteredProducts(productsArr);
       } catch (err) {

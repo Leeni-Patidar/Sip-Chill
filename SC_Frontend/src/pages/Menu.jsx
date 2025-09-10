@@ -41,7 +41,8 @@ export default function Menu() {
       try {
         setLoading(true);
         const res = await getAllProducts();
-        const productsArr = res.data?.products || res.data?.data?.products || [];
+        const productsArr = res.data?.data?.products || res.data?.products || [];
+
         setProducts(productsArr);
       } catch (err) {
         setError('Failed to fetch menu items.');

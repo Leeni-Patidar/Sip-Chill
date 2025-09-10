@@ -15,8 +15,11 @@ const ProductDetails = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
+
         const response = await getProductById(id);
-        setProduct(response.data?.data || null);
+
+        // ✅ Fix: directly set response.data (no extra .data)
+        setProduct(response.data || null);
       } catch (err) {
         console.error("Failed to fetch product:", err);
         setError("Failed to fetch product details.");
@@ -46,7 +49,7 @@ const ProductDetails = () => {
         {/* Product Image */}
         <div>
           <img
-            src={product.image_url}
+            src={product.image_url || product.image}  // ✅ support both keys
             alt={product.name}
             className="w-full h-auto rounded-2xl shadow-md"
           />

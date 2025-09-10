@@ -46,18 +46,40 @@ const ProductCard = ({ product }) => {
   };
 
   // Parse reviews JSON string if needed
-  let reviewData = { rating: 0, reviews: 0 };
-  if (product.reviews) {
-    if (typeof product.reviews === 'string') {
-      try {
-        reviewData = JSON.parse(product.reviews);
-      } catch {
-        reviewData = { rating: 0, reviews: 0 };
-      }
-    } else if (typeof product.reviews === 'object') {
-      reviewData = product.reviews;
+  // let reviewData = { rating: 0, reviews: 0 };
+  // if (product.reviews) {
+  //   if (typeof product.reviews === 'string') {
+  //     try {
+  //       reviewData = JSON.parse(product.reviews);
+  //     } catch {
+  //       reviewData = { rating: 0, reviews: 0 };
+  //     }
+  //   } else if (typeof product.reviews === 'object') {
+  //     reviewData = product.reviews;
+  //   }
+  // }
+
+
+  // Parse reviews JSON string if needed
+let reviewData = { rating: 0, reviews: [] }; // default object with empty reviews array
+if (product.reviews) {
+  if (typeof product.reviews === 'string') {
+    try {
+      const parsed = JSON.parse(product.reviews);
+      reviewData = {
+        rating: parsed.rating || 0,
+        reviews: Array.isArray(parsed.reviews) ? parsed.reviews : []
+      };
+    } catch {
+      reviewData = { rating: 0, reviews: [] };
     }
+  } else if (typeof product.reviews === 'object') {
+    reviewData = {
+      rating: product.reviews.rating || 0,
+      reviews: Array.isArray(product.reviews.reviews) ? product.reviews.reviews : []
+    };
   }
+}
 
   return (
     <>
@@ -98,14 +120,14 @@ const ProductCard = ({ product }) => {
               <h3 className="font-semibold text-gray-800 mb-2 group-hover:text-amber-700 transition-colors">
                 {product.name}
               </h3>
-              <div className="flex items-center space-x-1 mb-3">
+              {/* <div className="flex items-center space-x-1 mb-3">
                 <div className="flex text-yellow-400">
                   {[...Array(5)].map((_, i) => (
                     <i key={i} className={`ri-star-${i < Math.floor(reviewData.rating) ? 'fill' : 'line'} text-sm`}></i>
                   ))}
                 </div>
                 <span className="text-sm text-gray-500">({reviewData.reviews} reviews)</span>
-              </div>
+              </div> */}
               <div className="flex items-center space-x-2">
                 <span className="text-lg font-bold text-amber-700">₹{product.price}</span>
                 {product.originalPrice && (

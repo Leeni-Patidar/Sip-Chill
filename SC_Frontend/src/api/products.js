@@ -7,7 +7,15 @@ export const getAllProducts = (params) => api.get('/api/products', { params });
 export const getFeaturedProducts = () => api.get('/api/products/featured');
 
 // ✅ Get single product
-export const getProductById = (id) => api.get(`/api/products/${id}`);
+export const getProductById = async (id) => {
+  try {
+    const response = await api.get(`/api/products/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch product with ID ${id}:`, error);
+    throw error; // Re-throw the error for the calling component to handle
+  }
+};
 
 // ✅ Search products
 export const searchProducts = (query) => api.get(`/api/products/search/${query}`);
