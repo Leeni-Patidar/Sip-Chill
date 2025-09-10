@@ -110,7 +110,7 @@ const PrivacyPolicy = () => {
               >
                 contact us
               </a>{" "}
-              at [Your Contact Email Address].
+              .
             </p>
           </section>
         </div>

@@ -18,17 +18,15 @@ const CancellationRefund = () => {
               </h2>
               <p className="text-black leading-relaxed mb-4">
                 You can cancel your order within{" "}
-                <span className="font-semibold">1 hours</span> of placing
+                <span className="font-semibold">20 minutes</span> of placing
                 it, provided it has not already been shipped. To cancel your
                 order, please contact our customer support team at{" "}
-                <span className="font-semibold">  hello@sipandchill.com</span> or{" "}
-                with your
-                order details.
+                <span className="font-semibold">hello@sipandchill.com</span>{" "}
+                with your order details.
               </p>
               <p className="text-black leading-relaxed">
                 If your order has already been shipped, you will not be able to
-                cancel it. In this case, please refer to our{" "}
-                <span className="font-semibold">Return Policy</span>.
+                cancel it.
               </p>
             </section>
 
@@ -69,7 +67,7 @@ const CancellationRefund = () => {
               </h3>
               <p className="text-black leading-relaxed mb-4">
                 To request a refund, please contact our customer support team
-                within <span className="font-semibold">[Number] days</span> of
+                within <span className="font-semibold">the same day</span> of
                 receiving your order. Provide your order number and a detailed
                 explanation of the reason for the refund request.
               </p>

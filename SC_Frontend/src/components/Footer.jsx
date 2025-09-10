@@ -16,7 +16,7 @@ const Footer = () => {
               <span className="font-['Pacifico'] text-2xl">Sip & Chill</span>
             </div>
             <p className="text-white/80 mb-6 max-w-md">
-              Your cozy neighborhood café serving premium coffee, delicious pastries, and unforgettable experiences since 2020.
+              Your cozy neighborhood café serving premium coffee, delicious pastries, and unforgettable experiences .
             </p>
             <div className="flex space-x-4">
               <a href="#" className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors cursor-pointer">
@@ -41,7 +41,7 @@ const Footer = () => {
                 <li><a href="/menu" className="text-white/80 hover:text-white transition-colors">Menu</a></li>
                 <li><a href="/contact" className="text-white/80 hover:text-white transition-colors">Contact</a></li>
               </ul>
-              <ul className="space-y-2">
+              <ul className=" space-y-2">
                 <li><a href="/terms-and-conditions" className="text-white/80 hover:text-white transition-colors">Terms and Conditions</a></li>
                 <li><a href="/privacy-policy" className="text-white/80 hover:text-white transition-colors">Privacy Policy</a></li>
                 <li><a href="/shipping-and-delivery" className="text-white/80 hover:text-white transition-colors">Shipping and Delivery</a></li>
@@ -57,11 +57,11 @@ const Footer = () => {
             <ul className="space-y-2">
               <li className="flex items-center space-x-2">
                 <i className="ri-map-pin-line text-white/60"></i>
-                <span className="text-white/80 text-sm">123 Coffee Street, Bean City, BC 12345</span>
+                <span className="text-white/80 text-sm">123 XXX, YYYY, ZZZ 12345</span>
               </li>
               <li className="flex items-center space-x-2">
                 <i className="ri-phone-line text-white/60"></i>
-                <span className="text-white/80 text-sm">(555) 123-4567</span>
+                <span className="text-white/80 text-sm">+91 XXXXXXX888</span>
               </li>
               <li className="flex items-center space-x-2">
                 <i className="ri-mail-line text-white/60"></i>
@@ -69,7 +69,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center space-x-2">
                 <i className="ri-time-line text-white/60"></i>
-                <span className="text-white/80 text-sm">Mon-Sun: 7AM - 9PM</span>
+                <span className="text-white/80 text-sm">Mon-Sun: 11AM - 11PM</span>
               </li>
             </ul>
           </div>
@@ -78,7 +78,17 @@ const Footer = () => {
         <div className="border-t border-white/20 mt-8 pt-8 text-center">
           <p className="text-white/60 text-sm">
             © 2025 Sip & Chill. All rights reserved. Made with ❤️ and lots of coffee.
+            Made by{" "}
+            <a
+              href="https://www.linkedin.com/in/leeni-patidar-128274318/" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white hover:underline"
+            >
+              Leeni Patidar
+            </a>
           </p>
+
         </div>
       </div>
     </footer>

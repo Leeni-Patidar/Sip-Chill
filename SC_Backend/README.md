@@ -54,7 +54,7 @@ A complete Node.js backend API for the "Sip & Chill" café application, built wi
    
    # JWT Configuration
    JWT_SECRET=your_jwt_secret_key_here
-   JWT_EXPIRES_IN=7d
+   JWT_EXPIRES_IN=356d
    
    # Email Configuration
    EMAIL_HOST=smtp.gmail.com

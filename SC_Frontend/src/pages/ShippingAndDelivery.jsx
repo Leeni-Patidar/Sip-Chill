@@ -23,8 +23,8 @@ const ShippingAndDelivery = () => {
             </li>
             <li>
               <span className="font-semibold">Estimated Delivery Times:</span>{" "}
-              Local orders are usually delivered within 2–4 business days,
-              whereas outstation deliveries may take 5–7 business days.
+              Local orders are usually delivered within 30-50 minutes,
+              whereas outstation deliveries may take 30-50 minutes.
             </li>
             <li>
               <span className="font-semibold">International Shipping:</span>{" "}

@@ -4,7 +4,7 @@ const faqs = [
   {
     question: "What are your café’s opening hours?",
     answer:
-      "We are open from 8:00 AM to 10:00 PM from Monday to Sunday. Holiday hours may vary.",
+      "We are open from 11:00 AM to 11:00 PM from Monday to Sunday. Holiday hours may vary.",
   },
   {
     question: "Do you offer home delivery?",
@@ -49,7 +49,7 @@ const faqs = [
   {
     question: "How can I contact customer support?",
     answer:
-      "You can reach us at support@yourcafe.com or call us at +91-XXXXXXXXXX. Alternatively, visit our Contact Us page for assistance.",
+      "You can reach us at hello@sipandchill.com or call us at +91-XXXXXXX888. Alternatively, visit our Contact Us page for assistance.",
   },
 ];
 
