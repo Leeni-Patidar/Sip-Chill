@@ -14,7 +14,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Menu from './pages/Menu';
 // import OrderConfirmation from './pages/OrderConfirmation';
-// import OrderDetails from './pages/OrderDetails';
+import OrderDetails from './pages/OrderDetails';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import ProductDetails from './pages/ProductDetails';
 import Profile from './pages/Profile';
@@ -47,8 +47,8 @@ function App() {
           <Route path="/faq" element={<FAQ />} />
           <Route path="/login" element={<Login />} />
           <Route path="/menu" element={<Menu />} />
-          {/* <Route path="/order-confirmation" element={<OrderConfirmation />} />
-          <Route path="/orders/:orderId" element={<OrderDetails />} /> */}
+          {/* <Route path="/order-confirmation" element={<OrderConfirmation />} /> */}
+          <Route path="/orders/:orderId" element={<OrderDetails />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/profile" element={<Profile />} />

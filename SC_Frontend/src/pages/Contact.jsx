@@ -159,9 +159,101 @@ const Contact = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             
             {/* Contact Info */}
-            <div ref={contactInfoRef} className="space-y-8">
-              {/* ... (your contact info cards stay the same) */}
-            </div>
+             {/* Contact Info */}
+             <div ref={contactInfoRef} className="space-y-8">
+          
+              <div>
+                  <h2 className="text-3xl font-bold text-gray-800 mb-6">Visit Our Café</h2>
+                  <p className="text-gray-600 text-lg mb-8">
+                    Come experience our cozy atmosphere, friendly staff, and exceptional coffee. We're more than just a café – we're your neighborhood gathering place.
+                 </p>
+                </div>
+
+               {/* Contact Cards */}
+                <div className="space-y-6">
+                  <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+                    <div className="flex items-start space-x-4">
+                      <div className="w-12 h-12 bg-amber-700 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i className="ri-map-pin-fill text-white text-xl"></i>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-800 mb-2">Location</h3>
+                        <p className="text-gray-600">
+                          123 Coffee Street<br />
+                          Bean City, BC 12345<br />
+                          Near Central Park
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+                    <div className="flex items-start space-x-4">
+                      <div className="w-12 h-12 bg-amber-700 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i className="ri-phone-fill text-white text-xl"></i>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-800 mb-2">Phone</h3>
+                        <p className="text-gray-600">
+                          <a href="tel:15551234567" className="hover:text-amber-700 transition-colors">
+                            (555) 123-4567
+                          </a><br />
+                          <span className="text-sm text-gray-500">Available during business hours</span>
+                     </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+                    <div className="flex items-start space-x-4">
+                      <div className="w-12 h-12 bg-amber-700 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i className="ri-mail-fill text-white text-xl"></i>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-800 mb-2">Email</h3>
+                        <p className="text-gray-600">
+                          <a href="mailto:hello@sipandchill.com" className="hover:text-amber-700 transition-colors">
+                            hello@sipandchill.com
+                          </a><br />
+                          <span className="text-sm text-gray-500">We'll reply within 24 hours</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+                    <div className="flex items-start space-x-4">
+                      <div className="w-12 h-12 bg-amber-700 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i className="ri-time-fill text-white text-xl"></i>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-800 mb-2">Hours</h3>
+                        <div className="text-gray-600 space-y-1">
+                          <p><strong>Monday - Friday:</strong> 7:00 AM - 9:00 PM</p>
+                          <p><strong>Saturday - Sunday:</strong> 8:00 AM - 10:00 PM</p>
+                          <p className="text-sm text-gray-500">Extended hours on weekends</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+              
+
+                {/* Social Media */}
+                <div className="bg-white p-6 rounded-2xl shadow-lg">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Follow Us</h3>
+                  <div className="flex space-x-4">
+                    <a href="#" className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-colors cursor-pointer">
+                    <i className="ri-facebook-fill text-xl"></i>
+                   </a>
+                  <a href="#" className="w-12 h-12 bg-pink-600 rounded-full flex items-center justify-center text-white hover:bg-pink-700 transition-colors cursor-pointer">
+                      <i className="ri-instagram-line text-xl"></i>                  </a>
+                    <a href="#" className="w-12 h-12 bg-blue-400 rounded-full flex items-center justify-center text-white hover:bg-blue-500 transition-colors cursor-pointer">
+                      <i className="ri-twitter-fill text-xl"></i>
+                    </a>
+                  </div>
+                </div>
+             </div>
+             </div>
 
             {/* Contact Form */}
             <div ref={contactFormRef}>
@@ -176,7 +268,104 @@ const Contact = () => {
                   {error && <div className="p-4 bg-red-100 text-red-700 rounded">{error}</div>}
                   {successMessage && <div className="p-4 bg-green-100 text-green-700 rounded">{successMessage}</div>}
 
-                  {/* Form fields remain the same */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        First Name *
+                      </label>
+                      <input
+                        type="text"
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-700 focus:border-transparent text-sm"
+                        placeholder="Your first name"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Last Name *
+                      </label>
+                      <input
+                        type="text"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-700 focus:border-transparent text-sm"
+                        placeholder="Your last name"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email *
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-700 focus:border-transparent text-sm"
+                      placeholder="your@email.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-700 focus:border-transparent text-sm"
+                      placeholder="+91 (..........)"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Subject *
+                    </label>
+                    <select
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 border rounded-xl"
+                    >
+                      <option value="">Select a subject</option>
+                      <option value="general">General Inquiry</option>
+                      <option value="feedback">Feedback</option>
+                      <option value="catering">Catering Services</option>
+                      <option value="events">Private Events</option>
+                      <option value="partnership">Partnership</option>
+                      <option value="complaint">Complaint</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Message *
+                    </label>
+                    <textarea
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      required
+                      rows={6}
+                      maxLength={500}
+                      className="w-full px-4 py-3 border rounded-xl resize-none"
+                      placeholder="Tell us how we can help you..."
+                    ></textarea>
+                  </div>
+
 
                   <button
                     type="submit"
