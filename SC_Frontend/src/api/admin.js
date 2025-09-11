@@ -96,6 +96,41 @@ export const markMessageRead = async (id) => {
   }
 };
 
+// ---- Coupons ---- //
+
+// Fetch all coupons
+export const getAllCoupons = async () => {
+  try {
+    const res = await api.get("/api/admin/coupons");
+    return { success: true, data: res.data.data || [] };
+  } catch (err) {
+    console.error("Get all coupons error:", err.response?.data || err.message);
+    return { success: false, message: err.response?.data?.message || "Failed to fetch coupons", data: [] };
+  }
+};
+
+// Create a new coupon
+export const createCoupon = async (couponData) => {
+  try {
+    const res = await api.post("/api/admin/coupons", couponData);
+    return { success: true, data: res.data };
+  } catch (err) {
+    console.error("Create coupon error:", err.response?.data || err.message);
+    return { success: false, message: err.response?.data?.message || "Failed to create coupon" };
+  }
+};
+
+// Delete a coupon
+export const deleteCoupon = async (couponId) => {
+  try {
+    const res = await api.delete(`/api/admin/coupons/${couponId}`);
+    return { success: true, data: res.data };
+  } catch (err) {
+    console.error("Delete coupon error:", err.response?.data || err.message);
+    return { success: false, message: err.response?.data?.message || "Failed to delete coupon" };
+  }
+};
+
 // Analytics
 export const getProductAnalytics = async () => {
   try {

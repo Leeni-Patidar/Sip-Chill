@@ -3,6 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import ProductManagement from "./ProductManagement";
 import OrderManagement from "./OrderManagement";
+import CouponManagement from "./CouponManagement"; // new
 import { getDashboardStats, getAllOrders, getAllUsers } from "../../api/admin";
 import { getAllProducts } from "../../api/products";
 
@@ -14,6 +15,7 @@ const AdminDashboard = () => {
   const [adminProducts, setAdminProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
+  const [coupons, setCoupons] = useState([]); // new
   const [loading, setLoading] = useState(true);
   const [dashboardStats, setDashboardStats] = useState(null);
   const [recentOrders, setRecentOrders] = useState([]);
@@ -35,26 +37,18 @@ const AdminDashboard = () => {
           getAllUsers({ page: 1, limit: 20 }),
         ]);
 
-        // Dashboard stats
         if (statsRes?.success && statsRes.data?.data) {
           setDashboardStats(statsRes.data.data.stats);
           setRecentOrders(statsRes.data.data.recent_orders || []);
         }
 
-        // Orders
         if (ordersRes?.success) setOrders(ordersRes.data?.data?.orders || []);
-
-        // Products
         if (productsRes?.data) setAdminProducts(productsRes.data || []);
 
-        // Users
         if (usersRes?.success) {
-          console.log("Users API response:", usersRes.data); // Debug
-
-          // Flexible handling: check multiple possible paths
           const userList =
-            usersRes.data?.data?.users || // common path
-            usersRes.data?.users ||       // alternative path
+            usersRes.data?.data?.users ||
+            usersRes.data?.users ||
             [];
 
           const formattedUsers = userList.map(u => ({
@@ -131,6 +125,7 @@ const AdminDashboard = () => {
               { key: "overview", label: "Overview" },
               { key: "products", label: `Products (${totalProducts})` },
               { key: "orders", label: `Orders (${totalOrders})` },
+              { key: "coupons", label: `Coupons (${coupons.length})` }, // new
             ].map(tab => (
               <button
                 key={tab.key}
@@ -145,12 +140,12 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Overview Tab */}
+        {/* Tab Content */}
         {activeTab === "overview" && (
           <div className="space-y-8">
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
+              {[ // ... same as before
                 { title: "Total Users", value: totalUsers, icon: "ri-user-3-line", bg: "bg-purple-100", text: "text-purple-600" },
                 { title: "Total Products", value: totalProducts, icon: "ri-product-hunt-line", bg: "bg-amber-100", text: "text-amber-600" },
                 { title: "Total Orders", value: totalOrders, icon: "ri-shopping-cart-line", bg: "bg-blue-100", text: "text-blue-600" },
@@ -225,6 +220,10 @@ const AdminDashboard = () => {
 
         {activeTab === "orders" && (
           <OrderManagement orders={orders} />
+        )}
+
+        {activeTab === "coupons" && (
+          <CouponManagement coupons={coupons} setCoupons={setCoupons} /> // new
         )}
       </div>
     </div>

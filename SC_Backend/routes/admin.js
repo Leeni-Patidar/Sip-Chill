@@ -123,30 +123,56 @@ router.get('/orders', async (req, res) => {
       conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     // Get paginated orders
+    // const orders = await query(
+    //   `
+    //   SELECT 
+    //     o.id,
+    //     o.order_number,
+    //     o.total_amount,
+    //     o.status,
+    //     o.payment_status,
+    //     o.payment_method,
+    //     o.delivery_address,
+    //     o.contact_phone,
+    //     o.created_at,
+    //     o.estimated_delivery_time,
+    //     u.first_name,
+    //     u.last_name,
+    //     u.email
+    //   FROM orders o
+    //   LEFT JOIN users u ON o.user_id = u.id
+    //   ${whereClause}
+    //   ORDER BY o.created_at DESC
+    //   LIMIT ? OFFSET ?
+    //   `,
+    //   [...params, parseInt(limit), offset]
+    // );
+
     const orders = await query(
-      `
-      SELECT 
-        o.id,
-        o.order_number,
-        o.total_amount,
-        o.status,
-        o.payment_status,
-        o.payment_method,
-        o.delivery_address,
-        o.contact_phone,
-        o.created_at,
-        o.estimated_delivery_time,
-        u.first_name,
-        u.last_name,
-        u.email
-      FROM orders o
-      LEFT JOIN users u ON o.user_id = u.id
-      ${whereClause}
-      ORDER BY o.created_at DESC
-      LIMIT ? OFFSET ?
-      `,
-      [...params, parseInt(limit), offset]
-    );
+  `
+  SELECT 
+    o.id,
+    o.order_number,
+    o.total_amount,
+    o.status,
+    o.payment_status,
+    o.payment_method,
+    o.delivery_address,
+    o.contact_phone,
+    o.created_at,
+    o.estimated_delivery_time,
+    u.first_name,
+    u.last_name,
+    u.email
+  FROM orders o
+  LEFT JOIN users u ON o.user_id = u.id
+  ${whereClause}
+  ORDER BY o.created_at DESC
+  LIMIT ? OFFSET ?
+  `,
+  [...safeParams(params), parseInt(limit), offset]
+);
+
 
     // Attach order items (product name + quantity)
     for (const order of orders) {
@@ -268,24 +294,45 @@ router.get('/users', async (req, res) => {
     const whereClause =
       conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
-    const users = await query(
-      `
-      SELECT 
-        id,
-        email,
-        first_name,
-        last_name,
-        phone,
-        role,
-        is_active,
-        created_at
-      FROM users
-      ${whereClause}
-      ORDER BY created_at DESC
-      LIMIT ? OFFSET ?
-      `,
-      [...params, parseInt(limit), offset]
-    );
+    // const users = await query(
+    //   `
+    //   SELECT 
+    //     id,
+    //     email,
+    //     first_name,
+    //     last_name,
+    //     phone,
+    //     role,
+    //     is_active,
+    //     created_at
+    //   FROM users
+    //   ${whereClause}
+    //   ORDER BY created_at DESC
+    //   LIMIT ? OFFSET ?
+    //   `,
+    //   [...params, parseInt(limit), offset]
+    // );
+
+         const users = await query(
+  `
+  SELECT 
+    id,
+    email,
+    first_name,
+    last_name,
+    phone,
+    role,
+    is_active,
+    created_at
+  FROM users
+  ${whereClause}
+  ORDER BY created_at DESC
+  LIMIT ? OFFSET ?
+  `,
+  [...safeParams(params), parseInt(limit), offset]
+);
+
+const safeParams = (params) => (Array.isArray(params) ? params : []);
 
     const countResult = await query(
       `
