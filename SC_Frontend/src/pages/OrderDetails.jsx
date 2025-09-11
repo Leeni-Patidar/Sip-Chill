@@ -101,6 +101,7 @@ const OrderDetails = () => {
       </div>
     );
   }
+
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
@@ -119,12 +120,11 @@ const OrderDetails = () => {
       </div>
     );
   }
-  if (!order) {
-    return null;
-  }
+
+  if (!order) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 py-26 px-4 sm:px-6 lg:px-8">
       <div className="order-details-container max-w-4xl mx-auto">
         {/* Header */}
         <div className="order-section bg-white rounded-2xl shadow-xl p-6 sm:p-8 mb-8">
@@ -205,7 +205,7 @@ const OrderDetails = () => {
           </div>
 
           {/* Admin Status Update */}
-          {user?.role === 'admin' && (
+          {canUpdateStatus() && (
             <div className="mt-6 p-4 bg-blue-50 rounded-lg">
               <h4 className="font-semibold text-blue-900 mb-3">Update Order Status</h4>
               <div className="flex flex-wrap gap-2">
@@ -227,85 +227,82 @@ const OrderDetails = () => {
           )}
         </div>
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Order Items */}
-          <div className="order-section bg-white rounded-2xl shadow-xl p-6 sm:p-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Items Ordered</h2>
-            <div className="space-y-4">
-              {order.items?.map((item, index) => (
-                <div key={index} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                  {item.image && (
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg"
-                    />
-                  )}
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">{item.name}</h3>
-                    <p className="text-sm text-gray-600">
-                      ₹{item.price} × {item.quantity}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-gray-900">
-                      ₹{(item.price * item.quantity).toFixed(2)}
-                    </p>
-                  </div>
+        {/* Order Items */}
+        <div className="order-section bg-white rounded-2xl shadow-xl p-6 sm:p-8 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Items Ordered</h2>
+          <div className="space-y-4">
+            {order.items?.map((item, index) => (
+              <div key={index} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                {item.image && (
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg"
+                  />
+                )}
+                <div className="flex-1">
+                  <h3 className="font-medium text-gray-900">{item.name}</h3>
+                  <p className="text-sm text-gray-600">
+                    ₹{item.price} × {item.quantity}
+                  </p>
                 </div>
-              ))}
+                <div className="text-right">
+                  <p className="font-semibold text-gray-900">
+                    ₹{(item.price * item.quantity).toFixed(2)}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Customer & Delivery Info */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <div className="order-section bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Customer Information</h2>
+            <div className="space-y-4 text-sm sm:text-base">
+              <div>
+                <label className="block text-gray-500">Name</label>
+                <p className="text-gray-900">{order.customerInfo?.name || user?.name}</p>
+              </div>
+              <div>
+                <label className="block text-gray-500">Email</label>
+                <p className="text-gray-900">{order.customerInfo?.email || user?.email}</p>
+              </div>
+              <div>
+                <label className="block text-gray-500">Phone</label>
+                <p className="text-gray-900">{order.customerInfo?.phone || user?.phone || 'Not provided'}</p>
+              </div>
             </div>
           </div>
 
-          {/* Customer & Delivery Info */}
-          <div className="space-y-8">
-            <div className="order-section bg-white rounded-2xl shadow-xl p-6 sm:p-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Customer Information</h2>
-              <div className="space-y-4 text-sm sm:text-base">
-                <div>
-                  <label className="block text-gray-500">Name</label>
-                  <p className="text-gray-900">{order.customerInfo?.name || user?.name}</p>
-                </div>
-                <div>
-                  <label className="block text-gray-500">Email</label>
-                  <p className="text-gray-900">{order.customerInfo?.email || user?.email}</p>
-                </div>
-                <div>
-                  <label className="block text-gray-500">Phone</label>
-                  <p className="text-gray-900">{order.customerInfo?.phone || user?.phone || 'Not provided'}</p>
-                </div>
-              </div>
+          <div className="order-section bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Delivery Address</h2>
+            <div className="bg-gray-50 rounded-lg p-4 text-sm sm:text-base">
+              <p className="text-gray-900">
+                {order.customerInfo?.address || user?.address || 'Address not provided'}
+              </p>
             </div>
+          </div>
 
-            <div className="order-section bg-white rounded-2xl shadow-xl p-6 sm:p-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Delivery Address</h2>
-              <div className="bg-gray-50 rounded-lg p-4 text-sm sm:text-base">
-                <p className="text-gray-900">
-                  {order.customerInfo?.address || user?.address || 'Address not provided'}
-                </p>
+          <div className="order-section bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Payment Information</h2>
+            <div className="space-y-3 text-sm sm:text-base">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Payment Method:</span>
+                <span className="font-medium capitalize">{order.paymentMethod || "Cash on Delivery"}</span>
               </div>
-            </div>
-
-            <div className="order-section bg-white rounded-2xl shadow-xl p-6 sm:p-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Payment Information</h2>
-              <div className="space-y-3 text-sm sm:text-base">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Payment Method:</span>
-                  <span className="font-medium">Cash on Delivery</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Payment Status:</span>
-                  <span
-                    className={`px-2 py-1 text-xs font-medium rounded ${
-                      order.status === 'delivered'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}
-                  >
-                    {order.status === 'delivered' ? 'Paid' : 'Pending'}
-                  </span>
-                </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Payment Status:</span>
+                <span
+                  className={`px-2 py-1 text-xs font-medium rounded ${
+                    order.status === 'delivered' || order.paymentStatus === 'paid'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}
+                >
+                  {order.status === 'delivered' || order.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
+                </span>
               </div>
             </div>
           </div>
