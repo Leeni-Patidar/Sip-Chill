@@ -89,7 +89,7 @@ router.get('/dashboard', async (req, res) => {
 });
 
 // -------------------- ORDERS -------------------- //
-// -------------------- ORDERS -------------------- //
+
 router.get('/orders', async (req, res) => {
   try {
     const { status, payment_status, search } = req.query;
@@ -388,6 +388,95 @@ router.get('/analytics/products', async (req, res) => {
   } catch (error) {
     console.error('Get product analytics error:', error);
     res.status(500).json({ success: false, message: 'Server error getting product analytics' });
+  }
+});
+
+// GET ALL COUPONS
+router.get('/coupons', async (req, res) => {
+  try {
+    const coupons = await query(
+      `SELECT id, code, description, discount_value, valid_until, is_active, created_at 
+       FROM coupons ORDER BY created_at DESC`
+    );
+    res.json({ success: true, data: coupons });
+  } catch (err) {
+    console.error('Fetch coupons error:', err);
+    res.status(500).json({ success: false, message: 'Server error fetching coupons' });
+  }
+});
+
+// CREATE COUPON
+router.post(
+  '/coupons',
+  [
+    body('code').notEmpty().withMessage('Code is required'),
+    body('discount_value').isNumeric().withMessage('Discount must be a number'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
+    const { code, discount_value, valid_until, description } = req.body;
+    try {
+      const result = await query(
+        `INSERT INTO coupons (code, discount_value, valid_until, description, is_active) 
+         VALUES (?, ?, ?, ?, 1)`,
+        [code, discount_value, valid_until || null, description || null]
+      );
+
+      const [coupon] = await query('SELECT * FROM coupons WHERE id = ?', [result.insertId]);
+      res.json({ success: true, data: coupon });
+    } catch (err) {
+      console.error('Create coupon error:', err);
+      res.status(500).json({ success: false, message: 'Server error creating coupon' });
+    }
+  }
+);
+
+// UPDATE COUPON
+router.put(
+  '/coupons/:id',
+  [
+    body('code').notEmpty().withMessage('Code is required'),
+    body('discount_value').isNumeric().withMessage('Discount must be a number'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
+    const { id } = req.params;
+    const { code, discount_value, valid_until, description, is_active } = req.body;
+
+    try {
+      await query(
+        `UPDATE coupons 
+         SET code = ?, discount_value = ?, valid_until = ?, description = ?, is_active = ? 
+         WHERE id = ?`,
+        [code, discount_value, valid_until || null, description || null, is_active ? 1 : 0, id]
+      );
+
+      const [coupon] = await query('SELECT * FROM coupons WHERE id = ?', [id]);
+      res.json({ success: true, data: coupon });
+    } catch (err) {
+      console.error('Update coupon error:', err);
+      res.status(500).json({ success: false, message: 'Server error updating coupon' });
+    }
+  }
+);
+
+// DELETE COUPON
+router.delete('/coupons/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await query('DELETE FROM coupons WHERE id = ?', [id]);
+    res.json({ success: true, message: 'Coupon deleted successfully' });
+  } catch (err) {
+    console.error('Delete coupon error:', err);
+    res.status(500).json({ success: false, message: 'Server error deleting coupon' });
   }
 });
 
