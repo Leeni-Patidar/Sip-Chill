@@ -165,97 +165,6 @@ router.get('/favorites', async (req, res) => {
   }
 });
 
-// @desc    Get user reviews
-// router.get('/reviews', async (req, res) => {
-//   try {
-//     const { page, limit } = req.query;
-//     const { pageNum, limitNum, offset } = getPagination(page, limit, 10);
-
-//     const reviews = await query(`
-//       SELECT 
-//         r.id,
-//         r.rating,
-//         r.comment,
-//         r.created_at,
-//         p.id as product_id,
-//         p.name as product_name,
-//         p.image_url as product_image
-//       FROM reviews r
-//       JOIN products p ON r.product_id = p.id
-//       WHERE r.user_id = ?
-//       ORDER BY r.created_at DESC
-//       LIMIT ? OFFSET ?
-//     `, [req.user.id, limitNum, offset]);
-
-//     const countResult = await query(`
-//       SELECT COUNT(*) as total
-//       FROM reviews
-//       WHERE user_id = ?
-//     `, [req.user.id]);
-
-//     const total = countResult[0]?.total || 0;
-//     const totalPages = Math.ceil(total / limitNum);
-
-//     res.json({
-//       success: true,
-//       data: {
-//         reviews,
-//         pagination: {
-//           current_page: pageNum,
-//           total_pages: totalPages,
-//           total_items: total,
-//           items_per_page: limitNum
-//         }
-//       }
-//     });
-//   } catch (error) {
-//     console.error('Get user reviews error:', error);
-//     res.status(500).json({ success: false, message: 'Server error getting user reviews' });
-//   }
-// });
-
-// @desc    Add product review
-// router.post('/reviews', async (req, res) => {
-//   try {
-//     const { product_id, order_id, rating, comment } = req.body;
-
-//     if (rating < 1 || rating > 5) {
-//       return res.status(400).json({ success: false, message: 'Rating must be between 1 and 5' });
-//     }
-
-//     if (order_id) {
-//       const orderItems = await query(`
-//         SELECT oi.id
-//         FROM order_items oi
-//         JOIN orders o ON oi.order_id = o.id
-//         WHERE o.id = ? AND o.user_id = ? AND oi.product_id = ?
-//       `, [order_id, req.user.id, product_id]);
-
-//       if (orderItems.length === 0) {
-//         return res.status(400).json({ success: false, message: 'You can only review products you have ordered' });
-//       }
-//     }
-
-//     const existingReviews = await query(`
-//       SELECT id FROM reviews WHERE user_id = ? AND product_id = ?
-//     `, [req.user.id, product_id]);
-
-//     if (existingReviews.length > 0) {
-//       return res.status(400).json({ success: false, message: 'You have already reviewed this product' });
-//     }
-
-//     await query(`
-//       INSERT INTO reviews (user_id, product_id, order_id, rating, comment, is_verified)
-//       VALUES (?, ?, ?, ?, ?, TRUE)
-//     `, [req.user.id, product_id, order_id, rating, comment]);
-
-//     res.status(201).json({ success: true, message: 'Review added successfully' });
-//   } catch (error) {
-//     console.error('Add review error:', error);
-//     res.status(500).json({ success: false, message: 'Server error adding review' });
-//   }
-// });
-
 // @desc    Get user statistics
 router.get('/stats', async (req, res) => {
   try {
@@ -283,28 +192,7 @@ router.get('/stats', async (req, res) => {
       LIMIT 1
     `, [req.user.id]);
 
-    // const recentActivity = await query(`
-    //   SELECT 
-    //     'order' as type,
-    //     o.order_number as reference,
-    //     o.created_at as date,
-    //     o.total_amount as amount
-    //   FROM orders o
-    //   WHERE o.user_id = ?
-    //   UNION ALL
-    //   SELECT 
-    //     'review' as type,
-    //     p.name as reference,
-    //     r.created_at as date,
-    //     r.rating as amount
-    //   FROM reviews r
-    //   JOIN products p ON r.product_id = p.id
-    //   WHERE r.user_id = ?
-    //   ORDER BY date DESC
-    //   LIMIT 10
-    // `, [req.user.id, req.user.id]);
-
-    res.json({
+        res.json({
       success: true,
       data: {
         total_orders: totalOrders[0]?.count || 0,

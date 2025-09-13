@@ -108,7 +108,12 @@ const Register = () => {
       <div className="register-container max-w-md mx-auto">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-gradient-to-br from-amber-700 to-amber-900 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i className="ri-cup-fill text-white text-2xl"></i>
+            {/* <i className="ri-cup-fill text-white text-2xl"></i> */}
+            <img
+              src="./logo.png"
+              alt="Cup"
+              className="w-full h-full  rounded-full object-cover"
+            />
           </div>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
             Join Sip & Chill
@@ -144,9 +149,8 @@ const Register = () => {
                   name="first_name"
                   value={formData.first_name}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 ${
-                    errors.first_name ? "border-red-300" : "border-gray-300"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 ${errors.first_name ? "border-red-300" : "border-gray-300"
+                    }`}
                   placeholder="Enter first name"
                 />
                 {errors.first_name && (
@@ -168,9 +172,8 @@ const Register = () => {
                   name="last_name"
                   value={formData.last_name}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 ${
-                    errors.last_name ? "border-red-300" : "border-gray-300"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 ${errors.last_name ? "border-red-300" : "border-gray-300"
+                    }`}
                   placeholder="Enter last name"
                 />
                 {errors.last_name && (
@@ -196,9 +199,8 @@ const Register = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 pl-11 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors ${
-                    errors.email ? "border-red-300" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 pl-11 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors ${errors.email ? "border-red-300" : "border-gray-300"
+                    }`}
                   placeholder="Enter your email"
                   autoComplete="email"
                 />
@@ -223,9 +225,8 @@ const Register = () => {
                 name="address"
                 value={formData.address}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 ${
-                  errors.address ? "border-red-300" : "border-gray-300"
-                }`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 ${errors.address ? "border-red-300" : "border-gray-300"
+                  }`}
                 placeholder="Enter your address"
               />
               {errors.address && (
@@ -248,9 +249,8 @@ const Register = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 pl-11 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors ${
-                    errors.phone ? "border-red-300" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 pl-11 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors ${errors.phone ? "border-red-300" : "border-gray-300"
+                    }`}
                   placeholder="Enter your phone number"
                 />
                 <i className="ri-phone-line absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
@@ -275,9 +275,8 @@ const Register = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 pl-11 pr-11 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors ${
-                    errors.password ? "border-red-300" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 pl-11 pr-11 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors ${errors.password ? "border-red-300" : "border-gray-300"
+                    }`}
                   placeholder="Create a password"
                 />
                 <i className="ri-lock-line absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
@@ -311,9 +310,8 @@ const Register = () => {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 pl-11 pr-11 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors ${
-                    errors.confirmPassword ? "border-red-300" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 pl-11 pr-11 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors ${errors.confirmPassword ? "border-red-300" : "border-gray-300"
+                    }`}
                   placeholder="Confirm your password"
                 />
                 <i className="ri-lock-line absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
@@ -323,9 +321,8 @@ const Register = () => {
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   <i
-                    className={`ri-${
-                      showConfirmPassword ? "eye-off" : "eye"
-                    }-line`}
+                    className={`ri-${showConfirmPassword ? "eye-off" : "eye"
+                      }-line`}
                   ></i>
                 </button>
               </div>

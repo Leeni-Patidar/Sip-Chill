@@ -31,7 +31,12 @@ const Header = () => {
             {/* Logo */}
             <a href="/" className="flex items-center space-x-2">
               <div className="w-10 h-10 bg-gradient-to-br from-amber-700 to-amber-900 rounded-full flex items-center justify-center">
-                <i className="ri-cup-fill text-white text-lg"></i>
+                {/* <i className="ri-cup-fill text-white text-lg"></i> */}
+                <img
+                  src="./logo.png"
+                  alt="Cup"
+                  className="w-full h-full  rounded-full object-cover"
+                />
               </div>
               <span className="font-['Pacifico'] text-2xl text-amber-800">Sip & Chill</span>
             </a>

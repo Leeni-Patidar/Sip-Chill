@@ -29,8 +29,6 @@ import AdminDashboard from './pages/Admin/AdminDashboard';
 // import OrderManagement from './pages/Admin/OrderManagement';
 // import ProductManagement from './pages/Admin/ProductManagement';
 
-// import UserList from './pages/Admin/UserList';
-
 
 function App() {
   return (
@@ -61,7 +59,7 @@ function App() {
           <Route path="/admin" element={<AdminDashboard />} />
           {/* <Route path="/admin/orders" element={<OrderManagement />} />
           <Route path="/admin/products" element={<ProductManagement />} />
-          <Route path="/admin/users" element={<UserList />} /> */}
+            */}
 
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
