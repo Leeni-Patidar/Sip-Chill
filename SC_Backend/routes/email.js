@@ -1,5 +1,8 @@
+const express = require('express');
+const router = express.Router();
 const nodemailer = require('nodemailer');
 
+// Create transporter
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: process.env.EMAIL_PORT,
@@ -10,6 +13,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Email sending function
 async function sendContactNotification({ name, email, subject, message }) {
   const mailOptions = {
     from: `"Sip & Chill Contact" <${process.env.EMAIL_USER}>`,
@@ -25,4 +29,22 @@ async function sendContactNotification({ name, email, subject, message }) {
   return transporter.sendMail(mailOptions);
 }
 
-module.exports = { sendContactNotification };
+// POST /api/email/send
+router.post('/send', async (req, res) => {
+  try {
+    const { name, email, subject, message } = req.body;
+
+    if (!name || !email || !subject || !message) {
+      return res.status(400).json({ success: false, message: "All fields are required" });
+    }
+
+    await sendContactNotification({ name, email, subject, message });
+
+    res.json({ success: true, message: "Email sent successfully" });
+  } catch (error) {
+    console.error("Email sending error:", error);
+    res.status(500).json({ success: false, message: "Failed to send email", error: error.message });
+  }
+});
+
+module.exports = router;
