@@ -45,26 +45,37 @@ const AdminDashboard = () => {
         if (ordersRes?.success) setOrders(ordersRes.data?.data?.orders || []);
         if (productsRes?.data) setAdminProducts(productsRes.data || []);
 
-        if (usersRes?.success) {
-          const userList =
-            usersRes.data?.data?.users ||
-            usersRes.data?.users ||
-            [];
+       if (usersRes?.success) {
+  const userList =
+    usersRes.users || // after fixing getAllUsers to return { success, users }
+    usersRes.data?.data?.users ||
+    usersRes.data?.users ||
+    [];
 
-          const formattedUsers = userList.map(u => ({
-            ...u,
-            createdAt: u.createdAt || u.created_at || new Date().toISOString(),
-            name: u.name || `${u.first_name || ""} ${u.last_name || ""}`.trim() || "No Name",
-          }));
+  const formattedUsers = userList.map(u => {
+    const displayName =
+      u.name ||
+      u.username ||
+      `${u.first_name || ""} ${u.last_name || ""}`.trim() ||
+      (u.email ? u.email.split("@")[0] : "") ||
+      "No Name";
 
-          setUsers(formattedUsers);
+    return {
+      ...u,
+      createdAt: u.createdAt || u.created_at || new Date().toISOString(),
+      name: displayName,
+    };
+  });
 
-          const sortedUsers = formattedUsers
-            .slice()
-            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  setUsers(formattedUsers);
 
-          setRecentUsers(sortedUsers.slice(0, 5));
-        }
+  const sortedUsers = formattedUsers
+    .slice()
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  setRecentUsers(sortedUsers.slice(0, 5));
+}
+
       } catch (err) {
         console.error("Dashboard fetch error:", err);
       } finally {
