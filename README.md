@@ -6,7 +6,7 @@ Sip-Chill is a full-stack café management and ordering application that allows 
 
 🌐 Click here to view the live app
 
-(Replace # with your deployed URL once ready — e.g. Render/Netlify/Vercel link)
+[Sip&Chill](https://sip-chill.vercel.app/)
 
 # # 🚀 Features
 
