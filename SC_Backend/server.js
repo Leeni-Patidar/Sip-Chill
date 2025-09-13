@@ -1,4 +1,3 @@
-
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -76,8 +75,8 @@ app.use('/api/email', emailRoutes);
 // Error handling middleware
 app.use(errorHandler);
 
-// 404 handler — updated for Express 5+
-app.all('*', (req, res) => {
+// 404 handler — fixed for Express 5
+app.use((req, res) => {
   res.status(404).json({ 
     success: false, 
     message: 'Route not found' 
