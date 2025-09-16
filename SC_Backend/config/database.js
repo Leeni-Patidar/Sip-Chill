@@ -5,7 +5,10 @@ const dbConfig = {
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '2004',
   database: process.env.DB_NAME || 'sip_chill_db',
-  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306, // default 3307
+  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306 ,
+  ssl: {
+    ca: process.env.DB_SSL_CA  // PEM certificate loaded from env
+  },
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
