@@ -27,10 +27,10 @@ connectDB();
 // Security middleware
 app.use(helmet());
 
-// CORS configuration
+// ✅ Fixed CORS configuration
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['sip-chill.vercel.app'] 
+  origin: process.env.NODE_ENV === 'production'
+    ? ['https://sip-chill.vercel.app'] // include protocol
     : ['http://localhost:3000', 'http://localhost:5173'],
   credentials: true
 }));
@@ -38,7 +38,7 @@ app.use(cors({
 // Rate limiting
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP
   message: 'Too many requests from this IP, please try again later.'
 });
 app.use('/api/', limiter);
@@ -50,7 +50,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Static files
 app.use('/uploads', express.static('uploads'));
 
-// Health check endpoint
+// Health check
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
@@ -75,7 +75,7 @@ app.use('/api/email', emailRoutes);
 // Error handling middleware
 app.use(errorHandler);
 
-// 404 handler — fixed for Express 5
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({ 
     success: false, 
