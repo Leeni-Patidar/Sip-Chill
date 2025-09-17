@@ -57,8 +57,8 @@ app.use(
   })
 );
 
-// Explicit OPTIONS handler
-app.options("*", cors());
+// ✅ Fixed OPTIONS handler (no "*")
+app.options(/.*/, cors());
 
 // Rate limiting
 const limiter = rateLimit({
