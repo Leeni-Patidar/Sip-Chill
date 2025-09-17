@@ -37,8 +37,7 @@ app.use((req, res, next) => {
 const allowedOrigins =
   process.env.NODE_ENV === 'production'
     ? [
-        "https://sip-chill.vercel.app",
-        "https://www.sip-chill.vercel.app", // in case Vercel uses www
+        "https://sip-chill.vercel.app", // ✅ only this for Vercel
       ]
     : ["http://localhost:3000", "http://localhost:5173"];
 
@@ -46,14 +45,12 @@ const allowedOrigins =
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // allow mobile apps / Postman
+      if (!origin) return callback(null, true); // allow Postman, curl, etc.
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
-      return callback(
-        new Error(`🚫 CORS blocked: ${origin} not allowed`),
-        false
-      );
+      console.warn(`🚫 CORS blocked: ${origin} not allowed`);
+      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -61,9 +58,12 @@ app.use(
   })
 );
 
+// Explicit OPTIONS handler (important for preflight requests)
+app.options("*", cors());
+
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 min
   max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
   message: "Too many requests from this IP, please try again later.",
 });
@@ -101,7 +101,7 @@ app.use('/api/email', emailRoutes);
 // Error handling middleware
 app.use(errorHandler);
 
-// 404 handler — Express 5 compatible
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
