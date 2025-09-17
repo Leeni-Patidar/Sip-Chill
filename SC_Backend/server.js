@@ -27,29 +27,45 @@ connectDB();
 // Security middleware
 app.use(helmet());
 
-// CORS configuration (fixed)
-const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? ['https://sip-chill.vercel.app'] // include protocol
-  : ['http://localhost:3000', 'http://localhost:5173'];
+// Log incoming origins
+app.use((req, res, next) => {
+  console.log("🌍 Request Origin:", req.headers.origin);
+  next();
+});
 
-app.use(cors({
-  origin: function(origin, callback) {
-    // allow requests with no origin like mobile apps or curl
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true
-}));
+// Allowed origins
+const allowedOrigins =
+  process.env.NODE_ENV === 'production'
+    ? [
+        "https://sip-chill.vercel.app",
+        "https://www.sip-chill.vercel.app", // in case Vercel uses www
+      ]
+    : ["http://localhost:3000", "http://localhost:5173"];
+
+// CORS setup
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true); // allow mobile apps / Postman
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(
+        new Error(`🚫 CORS blocked: ${origin} not allowed`),
+        false
+      );
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // Rate limiting
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.'
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
+  message: "Too many requests from this IP, please try again later.",
 });
 app.use('/api/', limiter);
 
@@ -62,10 +78,10 @@ app.use('/uploads', express.static('uploads'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     message: 'Sip & Chill API is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -85,11 +101,11 @@ app.use('/api/email', emailRoutes);
 // Error handling middleware
 app.use(errorHandler);
 
-// 404 handler — fixed for Express 5
+// 404 handler — Express 5 compatible
 app.use((req, res) => {
-  res.status(404).json({ 
-    success: false, 
-    message: 'Route not found' 
+  res.status(404).json({
+    success: false,
+    message: 'Route not found',
   });
 });
 
