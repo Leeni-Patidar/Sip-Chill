@@ -9,7 +9,7 @@ const router = express.Router();
  */
 router.get("/", async (req, res) => {
   try {
-    const coupons = await query(
+    const [coupons] = await query(
       `SELECT id, code, description, discount_value, valid_until 
        FROM coupons 
        WHERE is_active = 1 
@@ -17,10 +17,12 @@ router.get("/", async (req, res) => {
        ORDER BY created_at DESC`
     );
 
-    res.json({ success: true, data: coupons });
+    res.json({ success: true, data: coupons }); // ✅ coupons is clean array
   } catch (err) {
     console.error("Fetch coupons error:", err);
-    res.status(500).json({ success: false, message: "Server error fetching coupons" });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error fetching coupons" });
   }
 });
 
@@ -32,11 +34,13 @@ router.post("/apply", async (req, res) => {
   const { code } = req.body;
 
   if (!code) {
-    return res.status(400).json({ success: false, message: "Coupon code is required" });
+    return res
+      .status(400)
+      .json({ success: false, message: "Coupon code is required" });
   }
 
   try {
-    const [coupon] = await query(
+    const [rows] = await query(
       `SELECT id, code, description, discount_value, valid_until 
        FROM coupons 
        WHERE code = ? 
@@ -46,14 +50,20 @@ router.post("/apply", async (req, res) => {
       [code]
     );
 
+    const coupon = rows[0]; // ✅ take first row safely
+
     if (!coupon) {
-      return res.status(404).json({ success: false, message: "Invalid or expired coupon" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Invalid or expired coupon" });
     }
 
     res.json({ success: true, data: coupon });
   } catch (err) {
     console.error("Apply coupon error:", err);
-    res.status(500).json({ success: false, message: "Server error applying coupon" });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error applying coupon" });
   }
 });
 
