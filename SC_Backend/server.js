@@ -27,18 +27,28 @@ connectDB();
 // Security middleware
 app.use(helmet());
 
-// ✅ Fixed CORS configuration
+// CORS configuration (fixed)
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? ['https://sip-chill.vercel.app'] // include protocol
+  : ['http://localhost:3000', 'http://localhost:5173'];
+
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? ['https://sip-chill.vercel.app'] // include protocol
-    : ['http://localhost:3000', 'http://localhost:5173'],
+  origin: function(origin, callback) {
+    // allow requests with no origin like mobile apps or curl
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   credentials: true
 }));
 
 // Rate limiting
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
   message: 'Too many requests from this IP, please try again later.'
 });
 app.use('/api/', limiter);
@@ -50,7 +60,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Static files
 app.use('/uploads', express.static('uploads'));
 
-// Health check
+// Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
@@ -75,7 +85,7 @@ app.use('/api/email', emailRoutes);
 // Error handling middleware
 app.use(errorHandler);
 
-// 404 handler
+// 404 handler — fixed for Express 5
 app.use((req, res) => {
   res.status(404).json({ 
     success: false, 
