@@ -1,4 +1,4 @@
-const BACKEND_URL = "http://localhost:5002" || "https://sip-chill-1.onrender.com"; // replace with your backend port
+const BACKEND_URL = import.meta.env.VITE_BACKEND_API_URL || "http://localhost:5002";
 
 // ✅ Get Razorpay Key
 export const getRazorpayKey = async () => {
