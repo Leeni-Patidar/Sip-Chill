@@ -25,7 +25,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_API_URL || "http://localhost:5002",
+  baseURL: import.meta.env.VITE_BACKEND_API_URL || "http://localhost:5002" || "https://sip-chill-1.onrender.com",
 });
 
 // Helper to set/remove auth token in headers
