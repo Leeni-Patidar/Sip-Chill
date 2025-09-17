@@ -34,12 +34,11 @@ app.use((req, res, next) => {
 });
 
 // Allowed origins
-const allowedOrigins =
-  process.env.NODE_ENV === 'production'
-    ? [
-        "https://sip-chill.vercel.app", // ✅ only this for Vercel
-      ]
-    : ["http://localhost:3000", "http://localhost:5173"];
+const allowedOrigins = [
+  "https://sip-chill.vercel.app", // ✅ Production frontend
+  "http://localhost:3000",        // ✅ React dev
+  "http://localhost:5173",        // ✅ Vite dev
+];
 
 // CORS setup
 app.use(
@@ -58,7 +57,7 @@ app.use(
   })
 );
 
-// Explicit OPTIONS handler (important for preflight requests)
+// Explicit OPTIONS handler
 app.options("*", cors());
 
 // Rate limiting
