@@ -24,7 +24,7 @@ export default function Menu() {
   const [page, setPage] = useState(1); 
   const navigate = useNavigate();
 
-  const categoriesPerPage = 6; 
+  const categoriesPerPage = 4; 
 
   useEffect(() => {
     const fetchData = async () => {
