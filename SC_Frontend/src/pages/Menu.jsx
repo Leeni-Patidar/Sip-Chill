@@ -1,8 +1,6 @@
-
-
-import React, { useEffect, useState } from 'react';
-import { getAllProducts } from '../api/products';
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/api";
 
 function MenuProductCard({ product, onClick }) {
   return (
@@ -14,52 +12,52 @@ function MenuProductCard({ product, onClick }) {
         <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
         <span className="text-xl font-bold text-amber-700">₹{product.price}</span>
       </div>
-     
     </div>
   );
 }
 
 export default function Menu() {
+  const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1); 
   const navigate = useNavigate();
 
-  // Map category_id → category name
-  const categoryMap = {
-    7: "Desserts",
-    6: "Pizza & Pasta",
-    5: "Salads",
-    4: "Burgers & Sandwiches",
-    3: "other",
-    2: "Specials",
-    1: "Beverages"
-  };
+  const categoriesPerPage = 6; 
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await getAllProducts();
-        const productsArr = res.data?.data?.products || res.data?.products || [];
 
+        // ✅ Fetch categories
+        const catRes = await api.get("/api/categories");
+        const cats = catRes.data?.data || [];
+        setCategories(cats);
+
+        // ✅ Fetch products
+        const prodRes = await api.get("/api/products");
+        const productsArr =
+          prodRes.data?.data?.products || prodRes.data?.products || [];
         setProducts(productsArr);
       } catch (err) {
-        setError('Failed to fetch menu items.');
+        console.error("Error fetching menu:", err);
+        setError("Failed to fetch menu items.");
       } finally {
         setLoading(false);
       }
     };
-    fetchProducts();
+
+    fetchData();
   }, []);
 
-  // group products by category_id
-  const groupedProducts = products.reduce((acc, product) => {
-    const catName = categoryMap[product.category_id] || "Other";
-    if (!acc[catName]) acc[catName] = [];
-    acc[catName].push(product);
-    return acc;
-  }, {});
+  // ✅ Pagination logic
+  const startIndex = (page - 1) * categoriesPerPage;
+  const endIndex = startIndex + categoriesPerPage;
+  const displayedCategories = categories.slice(startIndex, endIndex);
+
+  const totalPages = Math.ceil(categories.length / categoriesPerPage);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
@@ -68,8 +66,8 @@ export default function Menu() {
         className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 relative"
         style={{
           backgroundImage: `url('https://readdy.ai/api/search-image?query=Elegant%20caf%C3%A9%20menu%20background%20with%20coffee%20beans%2C%20warm%20brown%20wooden%20texture%2C%20vintage%20paper%20background%2C%20cozy%20atmosphere%2C%20professional%20menu%20design%20inspiration&width=1920&height=600&seq=menu-hero&orientation=landscape')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30"></div>
@@ -78,7 +76,8 @@ export default function Menu() {
             Our <span className="font-['Pacifico'] text-amber-300">Menu</span>
           </h1>
           <p className="text-xl text-white/90 max-w-2xl mx-auto">
-            Carefully crafted beverages and dishes made with the finest ingredients
+            Carefully crafted beverages and dishes made with the finest
+            ingredients
           </p>
         </div>
       </section>
@@ -97,32 +96,64 @@ export default function Menu() {
               <p className="text-xl font-medium mb-2">{error}</p>
               <p className="text-gray-500">Please try again later.</p>
             </div>
-          ) : products.length === 0 ? (
-            <div className="text-center py-16">
-              <i className="ri-search-line text-6xl text-gray-300 mb-4"></i>
-              <h3 className="text-xl font-medium text-gray-600 mb-2">No menu items found</h3>
-              <p className="text-gray-500">Check back soon for new additions!</p>
-            </div>
           ) : (
-            Object.entries(groupedProducts).map(([category, prods]) => (
-              <div key={category} className="mb-16">
-                {/* Category Heading */}
-                <h2 className="text-3xl font-bold text-amber-700 mb-8 border-b pb-2">
-                  {category}
-                </h2>
+            <>
+              {displayedCategories.map((cat) => {
+                const catProducts = products.filter(
+                  (p) => p.category_id === cat.id
+                );
+                // if (catProducts.length === 0) return null; // skip empty categories
 
-                {/* Products Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
-                  {prods.map((product) => (
-                    <MenuProductCard
-                      key={product.id}
-                      product={product}
-                      onClick={() => navigate(`/product/${product.id}`)}
-                    />
-                  ))}
-                </div>
+                return (
+                  <div key={cat.id} className="mb-16">
+                    {/* Category Heading */}
+                    <h2 className="text-3xl font-bold text-amber-700 mb-8 border-b pb-2">
+                      {cat.name}
+                    </h2>
+
+                    {/* Products Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+                      {catProducts.map((product) => (
+                        <MenuProductCard
+                          key={product.id}
+                          product={product}
+                          onClick={() => navigate(`/product/${product.id}`)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* ✅ Pagination Controls */}
+              <div className="flex justify-center items-center gap-4 mt-12">
+                <button
+                  disabled={page === 1}
+                  onClick={() => setPage(page - 1)}
+                  className={`px-4 py-2 rounded-lg font-medium ${
+                    page === 1
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-amber-600 text-white hover:bg-amber-700"
+                  }`}
+                >
+                  Prev
+                </button>
+                <span className="text-gray-700">
+                  Page {page} of {totalPages}
+                </span>
+                <button
+                  disabled={page === totalPages}
+                  onClick={() => setPage(page + 1)}
+                  className={`px-4 py-2 rounded-lg font-medium ${
+                    page === totalPages
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-amber-600 text-white hover:bg-amber-700"
+                  }`}
+                >
+                  Next
+                </button>
               </div>
-            ))
+            </>
           )}
         </div>
       </section>
