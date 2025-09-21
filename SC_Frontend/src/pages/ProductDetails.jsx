@@ -70,7 +70,7 @@ const ProductDetails = () => {
           <img
             src={product.image_url || product.image}
             alt={product.name}
-            className="w-full h-400px rounded-2xl shadow-md"
+            className="w-full h-350px rounded-2xl shadow-md"
           />
         </div>
 
